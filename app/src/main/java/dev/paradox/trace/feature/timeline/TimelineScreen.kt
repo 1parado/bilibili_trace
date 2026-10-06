@@ -33,12 +33,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.paradox.trace.R
 import dev.paradox.trace.TraceApplication
+import dev.paradox.trace.core.time.DailyAggregator
+import dev.paradox.trace.domain.analytics.HeatGridCalculator
 import dev.paradox.trace.ui.components.DayBand
+import dev.paradox.trace.ui.components.HeatGrid
 import dev.paradox.trace.ui.components.SessionRow
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val DAY_LABEL_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("M月d日 EEEE")
+private const val HEAT_WEEKS = 5
 
 @Composable
 fun TimelineScreen() {
@@ -133,6 +137,40 @@ fun TimelineScreen() {
                     )
                 }
             }
+        }
+
+        Text(
+            text = stringResource(R.string.timeline_heat_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        val totals = remember(sessions) {
+            DailyAggregator
+                .totalsByLocalDate(sessions.map { it.interval }, zone)
+                .mapValues { it.value.totalMs }
+        }
+        val heatGrid = remember(totals, dayOffset) {
+            val endDate = TimelineMath.dateForOffset(
+                java.time.ZonedDateTime.now(zone),
+                dayOffset,
+            )
+            val dateGrid = HeatGridCalculator.buildGrid(endDate, HEAT_WEEKS)
+            val maxMs = totals.values.maxOrNull() ?: 0L
+            dateGrid.map { week ->
+                week.map { dateKey ->
+                    dateKey?.let { key ->
+                        HeatGridCalculator.levelFor(totals[key] ?: 0L, maxMs)
+                    }
+                }
+            }
+        }
+        HeatGrid(grid = heatGrid)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = stringResource(R.string.timeline_heat_legend),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
