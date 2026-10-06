@@ -28,3 +28,6 @@ Thumbs.db
 **/reports/
 captures/
 screenshots/
+
+# WorkBuddy local workspace notes
+.workbuddy/
