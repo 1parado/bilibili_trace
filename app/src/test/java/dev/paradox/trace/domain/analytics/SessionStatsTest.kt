@@ -74,8 +74,10 @@ class SessionStatsTest {
         )
         val top = SessionStats.topContent(sessions)
         assertEquals(2, top.size)
-        assertEquals("视频B", top[0].label)
-        assertEquals(5_400_000L, top[0].totalMs)
-        assertEquals(2, top[1].count)
+        assertEquals("视频A", top[0].label)
+        assertEquals(7_200_000L, top[0].totalMs)
+        assertEquals(2, top[0].count)
+        assertEquals("视频B", top[1].label)
+        assertEquals(1, top[1].count)
     }
 }
