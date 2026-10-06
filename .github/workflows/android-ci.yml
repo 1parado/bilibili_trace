@@ -34,7 +34,11 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          # Install only packages required by the build. Avoid the legacy
+          # "tools" package, which is no longer available in the SDK repository.
+          packages: "platform-tools"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
