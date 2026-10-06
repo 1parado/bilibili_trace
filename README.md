@@ -71,6 +71,8 @@ A Gradle Wrapper should be added and verified as part of the first local Android
 - [Data model](docs/DATA_MODEL.md)
 - [Android data collection and privacy](docs/ANDROID_DATA_COLLECTION.md)
 - [Analytics definitions](docs/ANALYTICS.md)
+- [Bilibili API reference](docs/BILIBILI_API_REFERENCE.md)
+- [UI design reference](docs/UI_DESIGN_REFERENCE.md)
 - [MVP validation](docs/MVP_VALIDATION.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Development workflow](docs/DEVELOPMENT_WORKFLOW.md)
