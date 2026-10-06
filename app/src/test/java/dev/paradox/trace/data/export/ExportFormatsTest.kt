@@ -37,7 +37,7 @@ class ExportFormatsTest {
     @Test
     fun `csv omits null fields as empty`() {
         val csv = ExportFormats.csv(listOf(session("s1", null, 100L, 200L)))
-        assertTrue(csv.trim().lines()[1].endsWith(",,\"UP主\""))
+        assertTrue(csv.trim().lines()[1].endsWith(",,UP主"))
     }
 
     @Test
