@@ -56,8 +56,8 @@ class DailyAggregatorTest {
         val second = TimeInterval(utcMs(2026, 10, 6, 2, 30), utcMs(2026, 10, 6, 3, 30))
         val totals = DailyAggregator.totalsByLocalDate(listOf(first, second), zone)
         assertEquals(1, totals.size)
-        // 2h union after merging.
-        assertEquals(2 * 3_600_000L, totals.getValue("2026-10-06").totalMs)
+        // 10:00-11:00 and 10:30-11:30 overlap => 1.5h union after merging.
+        assertEquals(5_400_000L, totals.getValue("2026-10-06").totalMs)
         assertEquals(1, totals.getValue("2026-10-06").intervalCount)
     }
 
