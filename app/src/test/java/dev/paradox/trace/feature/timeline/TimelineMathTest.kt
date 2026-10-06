@@ -48,8 +48,8 @@ class TimelineMathTest {
             windowStart,
             windowEnd,
         )
-        assertEquals(0f, crossing?.first)
-        assertEquals(3_600_000L / span, crossing?.second, 1e-6f)
+        assertEquals(0f, crossing!!.first, 1e-6f)
+        assertEquals(3_600_000L / span, crossing.second, 1e-6f)
 
         // Session entirely before the window yields nothing.
         assertNull(
