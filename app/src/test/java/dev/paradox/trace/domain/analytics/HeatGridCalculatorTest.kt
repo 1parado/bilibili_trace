@@ -16,11 +16,11 @@ class HeatGridCalculatorTest {
         assertEquals(7, grid[0].size)
         // First cell is Monday two weeks back: 2026-09-28.
         assertEquals("2026-09-28", grid[0][0])
-        // Last column ends on Sunday 2026-10-11.
-        assertEquals("2026-10-11", grid[1][6])
-        // Cells after the end date are null: 2026-10-07..10-10.
+        // Anchor date 2026-10-06 (Tuesday) is present; later dates are empty.
+        assertEquals("2026-10-06", grid[1][1])
         assertNull(grid[1][2])
         assertNull(grid[1][5])
+        assertNull(grid[1][6])
     }
 
     @Test
