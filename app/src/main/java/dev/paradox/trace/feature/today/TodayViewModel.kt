@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TodayViewModel(
-    sessionRepository: SessionRepository,
+    private val sessionRepository: SessionRepository,
     userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
