@@ -27,7 +27,11 @@ object HeatGridCalculator {
         var weekIndex = 0
         while (!cursor.isAfter(gridEnd)) {
             val dayIndex = cursor.dayOfWeek.value - DayOfWeek.MONDAY.value
-            grid[weekIndex][dayIndex] = DATE_KEY_FORMAT.format(cursor)
+            // Dates after the anchor date stay null (rendered as invisible) so
+            // the grid never implies future data.
+            if (!cursor.isAfter(endDate)) {
+                grid[weekIndex][dayIndex] = DATE_KEY_FORMAT.format(cursor)
+            }
             if (dayIndex == 6) weekIndex++
             cursor = cursor.plusDays(1)
         }
