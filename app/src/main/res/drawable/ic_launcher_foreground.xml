@@ -1,38 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Foreground layer of the adaptive launcher icon.
+
+     All artwork is confined to the 66dp safe zone (circle centered at
+     54,54 with radius 33 in this 108dp viewport) so round, squircle,
+     and rounded-square launcher masks never clip the mascot. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M0,0h108v108h-108z" />
+    <!-- TV body -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#1680DB"
-        android:strokeWidth="6.2"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M39,25 L30,15 M69,25 L78,15 M22,29 Q22,24 30,24 H78 Q86,24 86,32 V69 Q86,77 78,77 H30 Q22,77 22,69 Z" />
-    <path
-        android:fillColor="#1680DB"
-        android:pathData="M34,44 L48,40 L50,46 L36,50 Z M58,40 L72,44 L70,50 L56,46 Z" />
+        android:pathData="M31,43 Q31,35 39,35 H69 Q77,35 77,43 V63 Q77,71 69,71 H39 Q31,71 31,63 Z" />
+    <!-- Antennas -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#1680DB"
-        android:strokeWidth="3.8"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M39,58 Q45,66 54,58 Q63,66 69,58" />
+        android:pathData="M43,35 L37,29 M65,35 L71,29" />
+    <!-- Clock badge -->
     <path
         android:fillColor="#FFFFFF"
-        android:strokeColor="#1680DB"
+        android:strokeColor="#FFFFFF"
         android:strokeWidth="3"
-        android:pathData="M54,8 A16,16 0,1 0,54 40 A16,16 0,1 0,54 8 Z" />
+        android:pathData="M54,23 A8,8 0,1 0,54,39 A8,8 0,1 0,54,23 Z" />
     <path
-        android:fillColor="#1680DB"
-        android:pathData="M52,15h4v10l6,4l-2,3l-8,-5z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#1680DB"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M48.5,31 h2 M59,31 h2 M54,34.5 v2" />
     <path
-        android:fillColor="#1680DB"
-        android:pathData="M52,11h4v3h-4z M52,34h4v3h-4z M43,22h4v3h-4z M61,22h4v3h-4z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#1680DB"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,27.8 v3.2 l2.9,1.7" />
+    <!-- Sleepy eyes -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M37,50 L46,47 L47,52 L38,55 Z M71,50 L62,47 L61,52 L70,55 Z" />
+    <!-- Smiling moustache -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M41,60 Q47.5,67 54,60 Q60.5,67 67,60" />
 </vector>
