@@ -14,20 +14,20 @@ class SessionCoalescerTest {
     @Test
     fun `coalesce merges intervals with gap strictly below threshold`() {
         val result = SessionCoalescer.coalesce(
-            listOf(TimeInterval(0, 100), TimeInterval(100 + 59_999, 200)),
+            listOf(TimeInterval(0, 100), TimeInterval(100 + 59_999, 200 + 59_999)),
             gapThresholdMs = 60_000L,
         )
-        assertEquals(listOf(TimeInterval(0, 200)), result)
+        assertEquals(listOf(TimeInterval(0, 200 + 59_999)), result)
     }
 
     @Test
     fun `coalesce keeps intervals with gap equal to threshold`() {
         val result = SessionCoalescer.coalesce(
-            listOf(TimeInterval(0, 100), TimeInterval(100 + 60_000, 200)),
+            listOf(TimeInterval(0, 100), TimeInterval(100 + 60_000, 200 + 60_000)),
             gapThresholdMs = 60_000L,
         )
         assertEquals(
-            listOf(TimeInterval(0, 100), TimeInterval(100 + 60_000, 200)),
+            listOf(TimeInterval(0, 100), TimeInterval(100 + 60_000, 200 + 60_000)),
             result,
         )
     }

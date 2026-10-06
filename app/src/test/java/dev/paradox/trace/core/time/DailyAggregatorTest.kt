@@ -37,11 +37,12 @@ class DailyAggregatorTest {
 
     @Test
     fun `multi-day interval attributes each day its own share`() {
-        val start = utcMs(2026, 10, 4, 10, 0)
+        // 2026-10-04 10:00 local, 72h span => ends 2026-10-07 10:00 local.
+        val start = localMs(2026, 10, 4, 10, 0)
         val interval = TimeInterval(start, start + 3 * 24 * 3_600_000L)
         val totals = DailyAggregator.totalsByLocalDate(listOf(interval), zone)
         assertEquals(4, totals.size)
-        // First day: 10:00 local to midnight = 14h; middle days: 24h each; last day: midnight to 10:00 = 10h.
+        // First day: 10:00 to midnight = 14h; middle days: 24h each; last day: midnight to 10:00 = 10h.
         assertEquals(14 * 3_600_000L, totals.getValue("2026-10-04").totalMs)
         assertEquals(24 * 3_600_000L, totals.getValue("2026-10-05").totalMs)
         assertEquals(24 * 3_600_000L, totals.getValue("2026-10-06").totalMs)
@@ -55,9 +56,9 @@ class DailyAggregatorTest {
         val second = TimeInterval(utcMs(2026, 10, 6, 2, 30), utcMs(2026, 10, 6, 3, 30))
         val totals = DailyAggregator.totalsByLocalDate(listOf(first, second), zone)
         assertEquals(1, totals.size)
-        // 2h union.
+        // 2h union after merging.
         assertEquals(2 * 3_600_000L, totals.getValue("2026-10-06").totalMs)
-        assertEquals(2, totals.getValue("2026-10-06").intervalCount)
+        assertEquals(1, totals.getValue("2026-10-06").intervalCount)
     }
 
     @Test
@@ -94,6 +95,17 @@ class DailyAggregatorTest {
         minute: Int,
     ): Long = java.time.ZonedDateTime
         .of(year, month, dayOfMonth, hour, minute, 0, 0, java.time.ZoneOffset.UTC)
+        .toInstant()
+        .toEpochMilli()
+
+    private fun localMs(
+        year: Int,
+        month: Int,
+        dayOfMonth: Int,
+        hour: Int,
+        minute: Int,
+    ): Long = java.time.ZonedDateTime
+        .of(year, month, dayOfMonth, hour, minute, 0, 0, zone)
         .toInstant()
         .toEpochMilli()
 }
