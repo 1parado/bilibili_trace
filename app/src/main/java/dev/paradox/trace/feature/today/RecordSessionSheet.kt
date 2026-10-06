@@ -161,10 +161,10 @@ internal fun buildCommand(
     val startMinutes = TimeTextParser.parseMinutesOfDay(startTimeText)
     val endMinutes = TimeTextParser.parseMinutesOfDay(endTimeText)
     val startMs = startMinutes?.let { minutes ->
-        today.atTime(LocalTime.of(it / 60, it % 60)).atZone(zone).toInstant().toEpochMilli()
+        today.atTime(LocalTime.of(minutes / 60, minutes % 60)).atZone(zone).toInstant().toEpochMilli()
     } ?: Long.MIN_VALUE
     val endMs = endMinutes?.let { minutes ->
-        today.atTime(LocalTime.of(it / 60, it % 60)).atZone(zone).toInstant().toEpochMilli()
+        today.atTime(LocalTime.of(minutes / 60, minutes % 60)).atZone(zone).toInstant().toEpochMilli()
     } ?: Long.MAX_VALUE
     return ManualSessionCommand(
         platform = "bilibili",
