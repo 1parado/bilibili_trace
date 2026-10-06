@@ -46,6 +46,8 @@
     <string name="settings_delete_all">清除全部数据</string>
     <string name="settings_delete_confirm_title">确认清除？</string>
     <string name="settings_delete_confirm_body">将删除本机全部会话、内容元数据与事件记录，操作不可恢复。</string>
+    <string name="settings_export_csv">导出 CSV</string>
+    <string name="settings_export_json">导出 JSON</string>
     <string name="today_goal_remaining">今日还剩 %1$d 分钟达到目标</string>
     <string name="today_goal_reached">今日目标已达成</string>
 </resources>

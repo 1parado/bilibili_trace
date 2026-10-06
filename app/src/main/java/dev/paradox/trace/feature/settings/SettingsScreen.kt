@@ -1,5 +1,7 @@
 package dev.paradox.trace.feature.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.paradox.trace.R
 import dev.paradox.trace.TraceApplication
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen() {
@@ -51,6 +55,24 @@ fun SettingsScreen() {
     var goalMessage by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     val goalSavedText = stringResource(R.string.settings_goal_saved)
+    val scope = rememberCoroutineScope()
+
+    var pendingExport by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/plain"),
+    ) { uri ->
+        val content = pendingExport?.second
+        pendingExport = null
+        if (uri != null && content != null) {
+            context.contentResolver.openOutputStream(uri)?.use { stream ->
+                stream.write(content.toByteArray(Charsets.UTF_8))
+            }
+        }
+    }
+    fun launchExport(fileName: String, content: String) {
+        pendingExport = fileName to content
+        exportLauncher.launch(fileName)
+    }
 
     Column(
         modifier = Modifier
@@ -141,6 +163,32 @@ fun SettingsScreen() {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                launchExport(
+                                    "trace-export.csv",
+                                    viewModel.buildCsv(),
+                                )
+                            }
+                        },
+                    ) {
+                        Text(stringResource(R.string.settings_export_csv))
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                launchExport(
+                                    "trace-export.json",
+                                    viewModel.buildJson(),
+                                )
+                            }
+                        },
+                    ) {
+                        Text(stringResource(R.string.settings_export_json))
+                    }
+                }
                 Button(
                     onClick = { confirmDelete = true },
                     colors = ButtonDefaults.buttonColors(
