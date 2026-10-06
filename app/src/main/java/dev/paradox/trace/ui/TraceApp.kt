@@ -12,11 +12,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -31,6 +35,7 @@ import dev.paradox.trace.feature.today.TodayViewModel
 import dev.paradox.trace.feature.today.RecordSessionSheet
 import dev.paradox.trace.feature.settings.SettingsScreen
 import dev.paradox.trace.feature.timeline.TimelineScreen
+import kotlinx.coroutines.launch
 
 private data class TabSpec(val icon: ImageVector, val labelRes: Int)
 
@@ -43,6 +48,9 @@ fun TraceApp() {
 
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var showRecordSheet by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val saveFailedText = stringResource(R.string.record_save_failed)
 
     val tabs = listOf(
         TabSpec(Icons.Filled.Home, R.string.tab_today),
@@ -53,6 +61,7 @@ fun TraceApp() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 tabs.forEachIndexed { index, tab ->
@@ -87,7 +96,11 @@ fun TraceApp() {
             onDismiss = { showRecordSheet = false },
             onConfirm = { command ->
                 showRecordSheet = false
-                viewModel.addSession(command) { }
+                viewModel.addSession(command) { result ->
+                    if (result.isFailure) {
+                        scope.launch { snackbarHostState.showSnackbar(saveFailedText) }
+                    }
+                }
             },
         )
     }

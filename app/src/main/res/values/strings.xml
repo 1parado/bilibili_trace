@@ -24,6 +24,7 @@
     <string name="record_cancel">取消</string>
     <string name="record_error_time">时间无效：请用 HH:mm 格式，并确保结束晚于开始。</string>
     <string name="record_error_future">结束时间不能超过当前时间。</string>
+    <string name="record_save_failed">保存失败，请重试。</string>
 
     <string name="empty_title">还没有记录</string>
     <string name="empty_body">手动记录一次观看，或稍后接入自动采集。所有数据仅保存在这台设备上。</string>

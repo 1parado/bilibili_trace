@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import dev.paradox.trace.R
 import dev.paradox.trace.core.time.DurationFormatter
 import dev.paradox.trace.domain.model.ContentSession
-import dev.paradox.trace.feature.today.formatSessionRange
+import dev.paradox.trace.ui.components.SessionTimeText.formatRange
 import java.time.ZoneId
 
 /** Large-number statistic card; value must be pre-formatted for display. */
@@ -93,7 +93,7 @@ fun SessionRow(
                     fontWeight = FontWeight.Medium,
                 )
                 Text(
-                    text = formatSessionRange(
+                    text = formatRange(
                         session.interval.startInclusiveMs,
                         session.interval.endExclusiveMs,
                         zone,

@@ -51,6 +51,11 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+lint {
+    textReport = true
+    abortOnError = true
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

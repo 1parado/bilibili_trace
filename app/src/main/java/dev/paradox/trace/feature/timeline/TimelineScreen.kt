@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +79,7 @@ fun TimelineScreen() {
                 onClick = { dayOffset = TimelineMath.clampOffset(dayOffset - 1) },
                 enabled = dayOffset > -TimelineMath.MAX_PAST_DAYS,
             ) {
-                Icon(Icons.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.timeline_prev_day))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.timeline_prev_day))
             }
             Text(
                 text = DAY_LABEL_FORMAT.format(date),
@@ -91,7 +91,7 @@ fun TimelineScreen() {
                 onClick = { dayOffset = TimelineMath.clampOffset(dayOffset + 1) },
                 enabled = dayOffset < 0,
             ) {
-                Icon(Icons.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.timeline_next_day))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.timeline_next_day))
             }
         }
 

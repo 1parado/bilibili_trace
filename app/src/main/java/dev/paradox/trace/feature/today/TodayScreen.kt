@@ -26,10 +26,7 @@ import dev.paradox.trace.core.time.DurationFormatter
 import dev.paradox.trace.domain.analytics.SessionStats
 import dev.paradox.trace.ui.components.SessionRow
 import dev.paradox.trace.ui.components.StatCard
-import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun TodayScreen(
@@ -120,15 +117,4 @@ fun TodayScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
     }
-}
-
-internal fun formatSessionRange(
-    startMs: Long,
-    endMs: Long,
-    zone: ZoneId,
-): String {
-    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-    return formatter.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(startMs), zone)) +
-        " – " +
-        formatter.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(endMs), zone))
 }
