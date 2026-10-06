@@ -53,9 +53,10 @@ jobs:
             echo "Gradle verification attempt ${attempt}/3"
             if gradle --no-daemon --max-workers=2 testDebugUnitTest lintDebug assembleDebug; then
               exit 0
+            else
+              status=$?
             fi
 
-            status=$?
             if [ "${attempt}" -lt 3 ]; then
               delay=$((attempt * 20))
               echo "Gradle failed; cached artifacts will be reused. Retrying in ${delay}s..."
