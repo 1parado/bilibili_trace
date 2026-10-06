@@ -121,6 +121,7 @@ fun TimelineScreen() {
                         window.second,
                     )
                 },
+                contentDescription = stringResource(R.string.timeline_band_desc),
             )
             AxisLabels()
             Text(

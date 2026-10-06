@@ -68,9 +68,19 @@ fun RecordSessionSheet(
                 title = preview.title
                 creator = preview.creatorName
                 fetchedByApi = true
+                suggestEndTime(preview.durationSec)
             }.onFailure {
                 errorText = errorFetch
             }
+        }
+    }
+
+    /** Prefills the end time from the video duration when a valid start exists. */
+    fun suggestEndTime(durationSec: Long) {
+        val startMinutes = TimeTextParser.parseMinutesOfDay(startTime) ?: return
+        val endTotal = startMinutes + (durationSec / 60L).toInt()
+        if (endTotal in 1 until 24 * 60) {
+            endTime = String.format("%02d:%02d", endTotal / 60, endTotal % 60)
         }
     }
 

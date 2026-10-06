@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.paradox.trace.ui.theme.TraceThemeExtended
 import dev.paradox.trace.domain.model.ContentSession
@@ -23,6 +25,7 @@ fun DayBand(
     sessions: List<ContentSession>,
     overlapOf: (ContentSession) -> Pair<Float, Float>?,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
 ) {
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
     val extendedColors = TraceThemeExtended
@@ -32,7 +35,14 @@ fun DayBand(
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(28.dp),
+            .height(28.dp)
+            .then(
+                if (contentDescription != null) {
+                    Modifier.semantics { this.contentDescription = contentDescription }
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         drawRoundRect(
             color = trackColor,
