@@ -3,7 +3,6 @@ package dev.paradox.trace.domain.analytics
 import dev.paradox.trace.core.time.DailyAggregator
 import dev.paradox.trace.core.time.IntervalMath
 import dev.paradox.trace.domain.model.ContentSession
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -25,18 +24,16 @@ object SessionStats {
         val merged = IntervalMath.merge(sessions.map { it.interval })
         val totals = DailyAggregator.totalsByLocalDate(merged, zone)
 
+        val now: java.time.Instant = java.time.Instant.ofEpochMilli(nowMs)
+        val today = now.atZone(zone).toLocalDate()
         val todayKey = DailyAggregator.dateKeyOf(nowMs, zone)
         val weekKeys = (6 downTo 0).map { offset ->
-            LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowMs), zone)
-                .minusDays(offset.toLong())
-                .format(DateTimeFormatter.ISO_LOCAL_DATE)
+            today.minusDays(offset.toLong()).format(DateTimeFormatter.ISO_LOCAL_DATE)
         }
         val weekMs = weekKeys.sumOf { totals[it]?.totalMs ?: 0L }
 
-        val todayStartMs = LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowMs), zone)
-            .atStartOfDay(zone).toInstant().toEpochMilli()
-        val todayEndMs = LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowMs), zone)
-            .plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+        val todayStartMs = today.atStartOfDay(zone).toInstant().toEpochMilli()
+        val todayEndMs = today.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
         val todaySessionCount = sessions.count { session ->
             session.interval.startInclusiveMs < todayEndMs &&
                 session.interval.endExclusiveMs > todayStartMs
