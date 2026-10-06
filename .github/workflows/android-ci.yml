@@ -1,0 +1,68 @@
+name: Android CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "chore/**"
+      - "feat/**"
+      - "fix/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build, lint, and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
+
+      - name: Set up Gradle and restore dependency cache
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.13"
+          cache-provider: basic
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+
+      - name: Build, lint, and test (retry transient repository failures)
+        shell: bash
+        run: |
+          set -uo pipefail
+          for attempt in 1 2 3; do
+            echo "Gradle verification attempt ${attempt}/3"
+            if gradle --no-daemon --max-workers=2 testDebugUnitTest lintDebug assembleDebug; then
+              exit 0
+            else
+              status=$?
+            fi
+
+            if [ "${attempt}" -lt 3 ]; then
+              delay=$((attempt * 20))
+              echo "Gradle failed; cached artifacts will be reused. Retrying in ${delay}s..."
+              sleep "${delay}"
+            else
+              echo "Gradle verification failed after 3 attempts."
+              exit "${status}"
+            fi
+          done

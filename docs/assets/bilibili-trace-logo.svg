@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 560" role="img" aria-labelledby="title desc">
+  <title id="title">bilibili-trace</title>
+  <desc id="desc">Blue television-shaped mascot with a clock, sleepy eyes and a smiling moustache.</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2388e8"/><stop offset="1" stop-color="#0871c9"/></linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#102744" flood-opacity=".16"/></filter>
+  </defs>
+  <rect width="512" height="560" rx="28" fill="#fafafa"/>
+  <g fill="none" stroke="url(#blue)" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <path d="M188 87 150 48 M324 87 362 48" stroke-width="24"/>
+    <rect x="64" y="94" width="384" height="304" rx="58" stroke-width="29"/>
+    <path d="M162 398v-3 M350 398v-3" stroke-width="31"/>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="99" r="65" fill="#fff" stroke="url(#blue)" stroke-width="11"/>
+    <g stroke="#1680db" stroke-width="7" stroke-linecap="round">
+      <path d="M256 55v8 M256 135v8 M213 99h8 M291 99h8"/>
+      <path d="M256 74v25l23 13" stroke-width="10"/>
+    </g>
+    <path d="M140 188 211 166 219 194 148 216Z M301 166 372 188 364 216 293 194Z" fill="url(#blue)"/>
+    <path d="M202 253c17 25 43 25 54 0 11 25 37 25 54 0" fill="none" stroke="url(#blue)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="256" y="468" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="43" font-weight="750" fill="#172b49" letter-spacing=".4">bilibili-trace</text>
+</svg>
