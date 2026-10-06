@@ -14,7 +14,15 @@ Trace 是一款 Android 优先、隐私优先的个人内容消费行为分析�
 
 ## 项目图标
 
-项目 Logo 源文件：[`docs/assets/bilibili-trace-logo.svg`](docs/assets/bilibili-trace-logo.svg)。Android 启动器使用匹配的自适应矢量图标。
+项目 Logo 源文件：[`docs/assets/bilibili-trace-logo.svg`](docs/assets/bilibili-trace-logo.svg)。
+
+Android 启动器使用纯矢量自适应图标（Adaptive Icon，`mipmap-anydpi-v26`），无需位图资源：
+
+- **背景层**：B 站品牌蓝（`#1680DB`）全出血底色；
+- **前景层**：白色吉祥物（电视 + 挂钟）矢量，全部绘制在中心 66dp 安全区内，圆形 / 圆角方形 / 方圆形等各类启动器蒙版均不会裁切；
+- **主题图标（monochrome）**：声明于 Android 13+，支持桌面长按切换单色主题图标。
+
+minSdk 为 26，`mipmap-anydpi-v26` 已覆盖全部支持版本，因此不提供 legacy PNG 图标。
 
 ## Repository status
 
