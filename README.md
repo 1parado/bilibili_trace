@@ -1,8 +1,20 @@
-# Trace — 个人数字行为分析器
+<p align="center">
+  <img src="docs/assets/bilibili-trace-logo.svg" alt="bilibili-trace project logo" width="420" />
+</p>
+
+<h1 align="center">Trace — 个人数字行为分析器</h1>
+
+<p align="center">
+  Android-first · Local-first · Privacy-first
+</p>
 
 Trace 是一款 Android 优先、隐私优先的个人内容消费行为分析工具。首个数据源为哔哩哔哩（Bilibili），关注时间管理、行为分析和学习复盘。
 
 > 产品边界：Trace 不复制 B 站已有的历史记录、收藏或关注管理。它关注跨时间的行为轨迹、时间分配、兴趣变化，以及“看完之后做了什么”。
+
+## 项目图标
+
+项目 Logo 源文件：[`docs/assets/bilibili-trace-logo.svg`](docs/assets/bilibili-trace-logo.svg)。Android 启动器使用匹配的自适应矢量图标。
 
 ## Repository status
 
