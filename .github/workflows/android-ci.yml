@@ -21,7 +21,7 @@ jobs:
   verify:
     name: Build, lint, and unit tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
@@ -36,21 +36,32 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          # Install only packages required by the build. Avoid the legacy
-          # "tools" package, which is no longer available in the SDK repository.
           packages: "platform-tools"
 
-      - name: Set up Gradle
+      - name: Set up Gradle and restore dependency cache
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "8.13"
           cache-provider: basic
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
 
-      - name: Verify unit tests
-        run: gradle --no-daemon testDebugUnitTest
+      - name: Build, lint, and test (retry transient repository failures)
+        shell: bash
+        run: |
+          set -uo pipefail
+          for attempt in 1 2 3; do
+            echo "Gradle verification attempt ${attempt}/3"
+            if gradle --no-daemon --max-workers=2 testDebugUnitTest lintDebug assembleDebug; then
+              exit 0
+            fi
 
-      - name: Verify Android lint
-        run: gradle --no-daemon lintDebug
-
-      - name: Assemble debug APK
-        run: gradle --no-daemon assembleDebug
+            status=$?
+            if [ "${attempt}" -lt 3 ]; then
+              delay=$((attempt * 20))
+              echo "Gradle failed; cached artifacts will be reused. Retrying in ${delay}s..."
+              sleep "${delay}"
+            else
+              echo "Gradle verification failed after 3 attempts."
+              exit "${status}"
+            fi
+          done
