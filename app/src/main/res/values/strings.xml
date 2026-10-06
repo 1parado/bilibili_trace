@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Trace</string>
+    <string name="dashboard_eyebrow">PERSONAL CONTENT INSIGHTS</string>
+    <string name="dashboard_intro">把内容消费变成可理解、可复盘的个人轨迹。</string>
+    <string name="data_status_title">数据采集尚未启用</string>
+    <string name="data_status_body">当前是初始工程骨架，尚未读取应用使用记录。后续版本会先加入可解释的应用级使用统计，再验证可选的视频内容识别。</string>
+    <string name="first_milestone_title">第一个里程碑</string>
+    <string name="first_milestone_body">建立可靠的本地时间线，清晰区分应用使用时长、内容可见区间和学习记录。</string>
+    <string name="privacy_note">本地优先 · 不上传行为数据 · 内容识别将保持可选</string>
+</resources>
