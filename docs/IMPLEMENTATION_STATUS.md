@@ -16,9 +16,10 @@ This file tracks verified repository state. Update it only after inspecting code
 - [x] Pure domain time engine: interval merge/union, daily bucketing (midnight/timezone aware), coalescing — unit tested
 - [x] Room persistence v1 (app_sessions / content_items / behavior_events) with schema export; DAO/migration tests pending on-device
 - [x] Session repository with deterministic dedupe keys and idempotent manual submissions — unit tested (fake DAOs)
-- [x] Manual session recording UI with validation and localized errors
-- [x] Today dashboard: today/7-day stats (union-based), recent sessions, delete, snackbar on save failure
-- [x] Timeline: 24h band + day navigation (29 days) + per-day list — window math unit tested
+- [x] Manual session recording UI with validation, localized errors, and anonymous BV metadata fetch (no cookies)
+- [x] Today dashboard: today/7-day stats (union-based), goal progress, recent sessions, delete, snackbar on save failure
+- [x] Timeline: 24h band + day navigation (29 days) + per-day list + five-week heat grid
+- [x] Settings: daily goal (DataStore), CSV/JSON export with schema versioning, confirmed delete-all
 - [ ] UsageStats collection adapter
 - [ ] Share-intent capture for Bilibili URLs
 - [ ] BV metadata fetch via anonymous view API (see docs/BILIBILI_API_REFERENCE.md)
@@ -27,4 +28,4 @@ This file tracks verified repository state. Update it only after inspecting code
 - [ ] Weekly report based on traceable metrics
 
 ## Current quality status
-Spiral 1 complete (iterations: domain time engine → Room layer → design tokens/navigation/recording → timeline → review). CI passes build + lint + unit tests on every push. Instrumentation (DAO, migration, Compose UI tests) still requires a device/emulator run and is not yet authored.
+Spiral 2 complete (settings/goal → export/delete → BV metadata fetch → heat grid → review). CI passes build + lint + unit tests on every push (66+ unit tests). Known remaining gaps: instrumentation tests (DAO, migration, Compose UI) require a device/emulator run and are not yet authored; Room schema JSON files are generated in CI but not yet committed to version control.

@@ -99,9 +99,10 @@ fun TraceApp() {
             fetchMetadata = { bvid -> application.bilibiliMetadataService.fetchByBvid(bvid) },
             onDismiss = { showRecordSheet = false },
             onConfirm = { command ->
-                showRecordSheet = false
                 viewModel.addSession(command) { result ->
-                    if (result.isFailure) {
+                    if (result.isSuccess) {
+                        showRecordSheet = false
+                    } else {
                         scope.launch { snackbarHostState.showSnackbar(saveFailedText) }
                     }
                 }

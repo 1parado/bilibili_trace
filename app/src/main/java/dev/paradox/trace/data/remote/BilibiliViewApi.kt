@@ -18,12 +18,18 @@ class BilibiliViewApi(
     private val baseUrl: String = DEFAULT_BASE_URL,
 ) : BilibiliMetadataService {
 
-    override suspend fun fetchByBvid(bvid: String): Result<BilibiliContentPreview> = runCatching {
+    override suspend fun fetchByBvid(bvid: String): Result<BilibiliContentPreview> = try {
         val normalized = BilibiliViewParser.normalizeBvid(bvid)
             ?: throw IOException("invalid bvid: $bvid")
         val body = withContext(Dispatchers.IO) { fetch(normalized) }
-        BilibiliViewParser.parse(body)
+        val preview = BilibiliViewParser.parse(body)
             ?: throw IOException("unparsable response for $normalized")
+        Result.success(preview)
+    } catch (error: kotlinx.coroutines.CancellationException) {
+        // Never swallow cancellation: the caller may be leaving the screen.
+        throw error
+    } catch (error: Exception) {
+        Result.failure(error)
     }
 
     private fun fetch(bvid: String): String {
