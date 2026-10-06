@@ -1,105 +1,94 @@
 package dev.paradox.trace.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.paradox.trace.R
+import dev.paradox.trace.TraceApplication
+import dev.paradox.trace.feature.today.TodayScreen
+import dev.paradox.trace.feature.today.TodayViewModel
+import dev.paradox.trace.feature.today.RecordSessionSheet
+import dev.paradox.trace.feature.settings.SettingsScreen
+import dev.paradox.trace.feature.timeline.TimelineScreen
+
+private data class TabSpec(val icon: ImageVector, val labelRes: Int)
 
 @Composable
 fun TraceApp() {
+    val application = LocalContext.current.applicationContext as TraceApplication
+    val viewModel: TodayViewModel = viewModel(
+        factory = TodayViewModel.factory(application.sessionRepository),
+    )
+
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var showRecordSheet by rememberSaveable { mutableStateOf(false) }
+
+    val tabs = listOf(
+        TabSpec(Icons.Filled.Home, R.string.tab_today),
+        TabSpec(Icons.Filled.DateRange, R.string.tab_timeline),
+        TabSpec(Icons.Filled.Settings, R.string.tab_settings),
+    )
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                tabs.forEachIndexed { index, tab ->
+                    NavigationBarItem(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        icon = { Icon(imageVector = tab.icon, contentDescription = null) },
+                        label = { Text(stringResource(tab.labelRes)) },
+                    )
+                }
+            }
+        },
     ) { innerPadding ->
-        DashboardContent(innerPadding)
-    }
-}
-
-@Composable
-private fun DashboardContent(innerPadding: PaddingValues) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-            .padding(horizontal = 24.dp, vertical = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = stringResource(R.string.dashboard_eyebrow),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.dashboard_intro),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            ),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.data_status_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+            when (selectedTab) {
+                0 -> TodayScreen(
+                    viewModel = viewModel,
+                    onRecordClick = { showRecordSheet = true },
                 )
-                Text(
-                    text = stringResource(R.string.data_status_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                1 -> TimelineScreen()
+                else -> SettingsScreen()
             }
         }
+    }
 
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = stringResource(R.string.first_milestone_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.first_milestone_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = stringResource(R.string.privacy_note),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+    if (showRecordSheet) {
+        RecordSessionSheet(
+            onDismiss = { showRecordSheet = false },
+            onConfirm = { command ->
+                showRecordSheet = false
+                viewModel.addSession(command) { }
+            },
         )
     }
 }

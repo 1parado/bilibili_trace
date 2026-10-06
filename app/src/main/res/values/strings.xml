@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Trace</string>
-    <string name="dashboard_eyebrow">PERSONAL CONTENT INSIGHTS</string>
-    <string name="dashboard_intro">把内容消费变成可理解、可复盘的个人轨迹。</string>
-    <string name="data_status_title">数据采集尚未启用</string>
-    <string name="data_status_body">当前是初始工程骨架，尚未读取应用使用记录。后续版本会先加入可解释的应用级使用统计，再验证可选的视频内容识别。</string>
-    <string name="first_milestone_title">第一个里程碑</string>
-    <string name="first_milestone_body">建立可靠的本地时间线，清晰区分应用使用时长、内容可见区间和学习记录。</string>
-    <string name="privacy_note">本地优先 · 不上传行为数据 · 内容识别将保持可选</string>
+
+    <string name="tab_today">今日</string>
+    <string name="tab_timeline">时间线</string>
+    <string name="tab_settings">设置</string>
+
+    <string name="today_subtitle">记录并理解你的内容消费轨迹。数据只保存在本机。</string>
+    <string name="stat_today_label">今日观看</string>
+    <string name="stat_week_label">近 7 天合计</string>
+    <string name="stats_method_note">按本地时区统计；重叠时段只计一次。</string>
+    <string name="recent_sessions_title">最近记录</string>
+
+    <string name="record_button">记录一次观看</string>
+    <string name="record_title">记录观看</string>
+    <string name="record_hint_title">内容标题（可选）</string>
+    <string name="record_hint_bvid">BV 号（可选）</string>
+    <string name="record_hint_creator">UP 主（可选）</string>
+    <string name="record_start">开始时间</string>
+    <string name="record_end">结束时间</string>
+    <string name="record_time_format_hint">格式 HH:mm</string>
+    <string name="record_save">保存</string>
+    <string name="record_cancel">取消</string>
+    <string name="record_error_time">时间无效：请用 HH:mm 格式，并确保结束晚于开始。</string>
+    <string name="record_error_future">结束时间不能超过当前时间。</string>
+
+    <string name="empty_title">还没有记录</string>
+    <string name="empty_body">手动记录一次观看，或稍后接入自动采集。所有数据仅保存在这台设备上。</string>
+    <string name="session_unnamed">未命名内容</string>
+    <string name="delete_session">删除该记录</string>
+
+    <string name="timeline_placeholder">时间线将随记录数据生成。</string>
+    <string name="settings_placeholder">设置将在后续版本可用。</string>
 </resources>
