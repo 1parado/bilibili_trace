@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 private data class TabSpec(val icon: ImageVector, val labelRes: Int)
 
 @Composable
-fun TraceApp() {
+fun TraceApp(sharedBvid: String? = null) {
     val application = LocalContext.current.applicationContext as TraceApplication
     val viewModel: TodayViewModel = viewModel(
         factory = TodayViewModel.factory(
@@ -50,7 +50,8 @@ fun TraceApp() {
     )
 
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    var showRecordSheet by rememberSaveable { mutableStateOf(false) }
+    var showRecordSheet by rememberSaveable { mutableStateOf(sharedBvid != null) }
+    val pendingSharedBvid = rememberSaveable { mutableStateOf(sharedBvid.orEmpty()) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val saveFailedText = stringResource(R.string.record_save_failed)
@@ -96,12 +97,17 @@ fun TraceApp() {
 
     if (showRecordSheet) {
         RecordSessionSheet(
+            initialContentId = pendingSharedBvid.value,
             fetchMetadata = { bvid -> application.bilibiliMetadataService.fetchByBvid(bvid) },
-            onDismiss = { showRecordSheet = false },
+            onDismiss = {
+                showRecordSheet = false
+                pendingSharedBvid.value = ""
+            },
             onConfirm = { command ->
                 viewModel.addSession(command) { result ->
                     if (result.isSuccess) {
                         showRecordSheet = false
+                        pendingSharedBvid.value = ""
                     } else {
                         scope.launch { snackbarHostState.showSnackbar(saveFailedText) }
                     }

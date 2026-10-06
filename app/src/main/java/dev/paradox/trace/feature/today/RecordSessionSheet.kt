@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,12 +39,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordSessionSheet(
+    initialContentId: String,
     fetchMetadata: suspend (String) -> Result<BilibiliContentPreview>,
     onDismiss: () -> Unit,
     onConfirm: (ManualSessionCommand) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
-    var contentId by remember { mutableStateOf("") }
+    var contentId by remember { mutableStateOf(initialContentId) }
     var creator by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("20:00") }
     var endTime by remember { mutableStateOf("21:00") }
@@ -54,6 +56,27 @@ fun RecordSessionSheet(
     val errorInvalidTime = stringResource(R.string.record_error_time)
     val errorFutureEnd = stringResource(R.string.record_error_future)
     val errorFetch = stringResource(R.string.record_fetch_failed)
+
+    fun performFetch(input: String) {
+        scope.launch {
+            fetching = true
+            errorText = null
+            val result = fetchMetadata(input)
+            fetching = false
+            result.onSuccess { preview ->
+                contentId = preview.bvid
+                title = preview.title
+                creator = preview.creatorName
+                fetchedByApi = true
+            }.onFailure {
+                errorText = errorFetch
+            }
+        }
+    }
+
+    LaunchedEffect(initialContentId) {
+        if (initialContentId.isNotBlank()) performFetch(initialContentId)
+    }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -86,22 +109,7 @@ fun RecordSessionSheet(
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     TextButton(
-                        onClick = {
-                            scope.launch {
-                                fetching = true
-                                errorText = null
-                                val result = fetchMetadata(contentId)
-                                fetching = false
-                                result.onSuccess { preview ->
-                                    contentId = preview.bvid
-                                    title = preview.title
-                                    creator = preview.creatorName
-                                    fetchedByApi = true
-                                }.onFailure {
-                                    errorText = errorFetch
-                                }
-                            }
-                        },
+                        onClick = { performFetch(contentId) },
                         enabled = contentId.isNotBlank() && !fetching,
                     ) {
                         Text(
