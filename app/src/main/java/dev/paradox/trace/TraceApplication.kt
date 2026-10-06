@@ -5,7 +5,9 @@ import androidx.room.Room
 import dev.paradox.trace.data.local.RoomTransactionRunner
 import dev.paradox.trace.data.local.TraceDatabase
 import dev.paradox.trace.data.repository.RoomSessionRepository
+import dev.paradox.trace.data.settings.DataStoreUserPreferencesRepository
 import dev.paradox.trace.domain.repository.SessionRepository
+import dev.paradox.trace.domain.repository.UserPreferencesRepository
 
 /**
  * Minimal manual dependency graph (AGENTS.md: no DI framework by default).
@@ -27,5 +29,9 @@ class TraceApplication : Application() {
             behaviorEventDao = database.behaviorEventDao(),
             transactionRunner = RoomTransactionRunner(database),
         )
+    }
+
+    val userPreferencesRepository: UserPreferencesRepository by lazy {
+        DataStoreUserPreferencesRepository(this)
     }
 }

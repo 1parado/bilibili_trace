@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,8 +25,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.paradox.trace.R
 import dev.paradox.trace.core.time.DurationFormatter
 import dev.paradox.trace.domain.analytics.SessionStats
+import dev.paradox.trace.domain.repository.DailyGoal
 import dev.paradox.trace.ui.components.SessionRow
 import dev.paradox.trace.ui.components.StatCard
+import dev.paradox.trace.ui.theme.TraceThemeExtended
 import java.time.ZoneId
 
 @Composable
@@ -34,6 +37,7 @@ fun TodayScreen(
     onRecordClick: () -> Unit,
 ) {
     val sessions by viewModel.sessions.collectAsStateWithLifecycle()
+    val goalMinutes by viewModel.dailyGoalMinutes.collectAsStateWithLifecycle()
     val zone: ZoneId = ZoneId.systemDefault()
 
     val stats = remember(sessions) {
@@ -78,6 +82,27 @@ fun TodayScreen(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        val remaining = DailyGoal.remainingMinutes(goalMinutes, stats.todayMs)
+        if (remaining != null) {
+            val fraction = if (goalMinutes > 0) {
+                (goalMinutes - remaining).toFloat() / goalMinutes.toFloat()
+            } else 0f
+            LinearProgressIndicator(
+                progress = { fraction.coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth(),
+                color = TraceThemeExtended.success,
+            )
+            Text(
+                text = if (remaining > 0) {
+                    stringResource(R.string.today_goal_remaining, remaining)
+                } else {
+                    stringResource(R.string.today_goal_reached)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
         Button(
             onClick = onRecordClick,

@@ -43,7 +43,10 @@ private data class TabSpec(val icon: ImageVector, val labelRes: Int)
 fun TraceApp() {
     val application = LocalContext.current.applicationContext as TraceApplication
     val viewModel: TodayViewModel = viewModel(
-        factory = TodayViewModel.factory(application.sessionRepository),
+        factory = TodayViewModel.factory(
+            sessionRepository = application.sessionRepository,
+            userPreferencesRepository = application.userPreferencesRepository,
+        ),
     )
 
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }

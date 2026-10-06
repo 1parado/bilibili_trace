@@ -36,4 +36,16 @@
     <string name="timeline_prev_day">前一天</string>
     <string name="timeline_next_day">后一天</string>
     <string name="settings_placeholder">设置将在后续版本可用。</string>
+    <string name="settings_goal_title">每日观看目标</string>
+    <string name="settings_goal_body">目标只是参考刻度，不是评判。设为 0 表示不设目标。</string>
+    <string name="settings_goal_input_label">目标（分钟，0–1440）</string>
+    <string name="settings_goal_current">当前目标：%1$d 分钟</string>
+    <string name="settings_goal_saved">已保存。</string>
+    <string name="settings_data_title">数据</string>
+    <string name="settings_data_body">所有数据仅保存在本机。清除将删除会话、内容元数据、事件与派生统计，且不可恢复。</string>
+    <string name="settings_delete_all">清除全部数据</string>
+    <string name="settings_delete_confirm_title">确认清除？</string>
+    <string name="settings_delete_confirm_body">将删除本机全部会话、内容元数据与事件记录，操作不可恢复。</string>
+    <string name="today_goal_remaining">今日还剩 %1$d 分钟达到目标</string>
+    <string name="today_goal_reached">今日目标已达成</string>
 </resources>
