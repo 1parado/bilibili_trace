@@ -60,4 +60,22 @@ class SessionStatsTest {
         assertEquals(0, stats.todaySessionCount)
         assertEquals(7, stats.dailyTotalsMs.size)
     }
+
+    @Test
+    fun `topContent aggregates by content id and sorts by total duration`() {
+        val content = { title: String ->
+            dev.paradox.trace.domain.model.ContentRef("bilibili", "BV$title", title, "UP")
+        }
+        val sessions = listOf(
+            session("a", localMs(2026, 10, 6, 9, 0), localMs(2026, 10, 6, 10, 0)).copy(content = content("视频A")),
+            session("a2", localMs(2026, 10, 5, 9, 0), localMs(2026, 10, 5, 10, 0)).copy(content = content("视频A")),
+            session("b", localMs(2026, 10, 6, 11, 0), localMs(2026, 10, 6, 12, 30)).copy(content = content("视频B")),
+            session("noTitle", localMs(2026, 10, 6, 13, 0), localMs(2026, 10, 6, 14, 0)),
+        )
+        val top = SessionStats.topContent(sessions)
+        assertEquals(2, top.size)
+        assertEquals("视频B", top[0].label)
+        assertEquals(5_400_000L, top[0].totalMs)
+        assertEquals(2, top[1].count)
+    }
 }

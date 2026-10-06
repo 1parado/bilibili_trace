@@ -130,6 +130,45 @@ fun TodayScreen(
                 )
             }
         } else {
+            val topContent = remember(sessions) { SessionStats.topContent(sessions) }
+            if (topContent.isNotEmpty()) {
+                Text(
+                    text = stringResource(R.string.today_top_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    topContent.forEach { aggregate ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text(
+                                text = aggregate.label,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = stringResource(R.string.today_top_count, aggregate.count),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = DurationFormatter.format(aggregate.totalMs),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            )
+                        }
+                    }
+                }
+            }
+            Text(
+                text = stringResource(R.string.recent_sessions_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 sessions.take(10).forEach { session ->
                     SessionRow(

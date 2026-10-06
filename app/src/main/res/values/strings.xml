@@ -11,6 +11,8 @@
     <string name="stat_week_label">近 7 天合计</string>
     <string name="stats_method_note">按本地时区统计；重叠时段只计一次。</string>
     <string name="recent_sessions_title">最近记录</string>
+    <string name="today_top_title">内容排行</string>
+    <string name="today_top_count">%1$d 次</string>
 
     <string name="record_button">记录一次观看</string>
     <string name="record_title">记录观看</string>

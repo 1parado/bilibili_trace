@@ -46,4 +46,42 @@ object SessionStats {
             dailyTotalsMs = weekKeys.map { it to (totals[it]?.totalMs ?: 0L) },
         )
     }
+
+    /**
+     * Aggregates sessions per content identity, most-watched first. Sums
+     * per-session durations (per-session facts), unlike the union-based
+     * wall-clock stats above; both figures are explainable and intentional.
+     */
+    fun topContent(
+        sessions: List<ContentSession>,
+        limit: Int = 5,
+    ): List<ContentAggregate> {
+        require(limit > 0) { "limit must be positive" }
+        data class MutableAggregate(val label: String, var totalMs: Long, var count: Int)
+
+        val byKey = LinkedHashMap<String, MutableAggregate>()
+        for (session in sessions) {
+            val content = session.content ?: continue
+            val label = content.title
+                ?: content.platformContentId
+                ?: continue
+            val key = content.platformContentId ?: "title:$label"
+            val aggregate = byKey.getOrPut(key) { MutableAggregate(label, 0L, 0) }
+            aggregate.totalMs += session.interval.durationMs
+            aggregate.count += 1
+        }
+        return byKey.entries
+            .sortedByDescending { it.value.totalMs }
+            .take(limit)
+            .map { (key, value) ->
+                ContentAggregate(key = key, label = value.label, totalMs = value.totalMs, count = value.count)
+            }
+    }
+
+    data class ContentAggregate(
+        val key: String,
+        val label: String,
+        val totalMs: Long,
+        val count: Int,
+    )
 }
