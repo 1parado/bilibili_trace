@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.room.Room
 import dev.paradox.trace.data.local.RoomTransactionRunner
 import dev.paradox.trace.data.local.TraceDatabase
+import dev.paradox.trace.data.remote.BilibiliViewApi
 import dev.paradox.trace.data.repository.RoomSessionRepository
 import dev.paradox.trace.data.settings.DataStoreUserPreferencesRepository
 import dev.paradox.trace.domain.repository.SessionRepository
 import dev.paradox.trace.domain.repository.UserPreferencesRepository
+import dev.paradox.trace.domain.remote.BilibiliMetadataService
 
 /**
  * Minimal manual dependency graph (AGENTS.md: no DI framework by default).
@@ -33,5 +35,9 @@ class TraceApplication : Application() {
 
     val userPreferencesRepository: UserPreferencesRepository by lazy {
         DataStoreUserPreferencesRepository(this)
+    }
+
+    val bilibiliMetadataService: BilibiliMetadataService by lazy {
+        BilibiliViewApi()
     }
 }

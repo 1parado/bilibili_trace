@@ -144,7 +144,7 @@ class RoomSessionRepository(
             creatorId = null,
             creatorName = command.creatorName,
             userTopic = null,
-            metadataSource = METADATA_SOURCE_USER,
+            metadataSource = command.metadataSource ?: METADATA_SOURCE_USER,
             metadataConfidence = null,
             firstSeenAt = nowMs,
             lastSeenAt = nowMs,

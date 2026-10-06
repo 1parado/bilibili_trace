@@ -96,6 +96,7 @@ fun TraceApp() {
 
     if (showRecordSheet) {
         RecordSessionSheet(
+            fetchMetadata = { bvid -> application.bilibiliMetadataService.fetchByBvid(bvid) },
             onDismiss = { showRecordSheet = false },
             onConfirm = { command ->
                 showRecordSheet = false

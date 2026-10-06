@@ -11,6 +11,8 @@ data class ManualSessionCommand(
     val creatorName: String?,
     val startedAtMs: Long,
     val endedAtMs: Long,
+    /** Provenance of content metadata: null = user typed, "PLATFORM_API" = fetched. */
+    val metadataSource: String? = null,
 )
 
 /** Read/write gateway for content sessions. Sources never certify truth. */

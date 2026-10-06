@@ -23,10 +23,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.paradox.trace.R
 import dev.paradox.trace.core.time.TimeTextParser
+import dev.paradox.trace.domain.model.BilibiliContentPreview
 import dev.paradox.trace.domain.repository.ManualSessionCommand
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlinx.coroutines.launch
 
 /**
  * Form for logging one observed viewing session. Inputs are wall-clock times
@@ -35,6 +37,7 @@ import java.time.ZoneId
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordSessionSheet(
+    fetchMetadata: suspend (String) -> Result<BilibiliContentPreview>,
     onDismiss: () -> Unit,
     onConfirm: (ManualSessionCommand) -> Unit,
 ) {
@@ -44,8 +47,12 @@ fun RecordSessionSheet(
     var startTime by remember { mutableStateOf("20:00") }
     var endTime by remember { mutableStateOf("21:00") }
     var errorText by remember { mutableStateOf<String?>(null) }
+    var fetching by remember { mutableStateOf(false) }
+    var fetchedByApi by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val errorInvalidTime = stringResource(R.string.record_error_time)
     val errorFutureEnd = stringResource(R.string.record_error_future)
+    val errorFetch = stringResource(R.string.record_fetch_failed)
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -69,10 +76,42 @@ fun RecordSessionSheet(
             )
             OutlinedTextField(
                 value = contentId,
-                onValueChange = { contentId = it },
+                onValueChange = {
+                    contentId = it
+                    fetchedByApi = false
+                },
                 label = { Text(stringResource(R.string.record_hint_bvid)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                fetching = true
+                                errorText = null
+                                val result = fetchMetadata(contentId)
+                                fetching = false
+                                result.onSuccess { preview ->
+                                    contentId = preview.bvid
+                                    title = preview.title
+                                    creator = preview.creatorName
+                                    fetchedByApi = true
+                                }.onFailure {
+                                    errorText = errorFetch
+                                }
+                            }
+                        },
+                        enabled = contentId.isNotBlank() && !fetching,
+                    ) {
+                        Text(
+                            text = if (fetching) {
+                                stringResource(R.string.record_fetching)
+                            } else {
+                                stringResource(R.string.record_fetch_metadata)
+                            },
+                        )
+                    }
+                },
             )
             OutlinedTextField(
                 value = creator,
@@ -137,7 +176,11 @@ fun RecordSessionSheet(
                             }
                         } else {
                             errorText = null
-                            onConfirm(command)
+                            onConfirm(
+                                command.copy(
+                                    metadataSource = if (fetchedByApi) "PLATFORM_API" else null,
+                                ),
+                            )
                         }
                     },
                     modifier = Modifier.weight(1f),
