@@ -11,7 +11,6 @@ import dev.paradox.trace.data.local.entity.BehaviorEventEntity
 import dev.paradox.trace.data.local.entity.ContentItemEntity
 import dev.paradox.trace.domain.model.ContentSession
 import dev.paradox.trace.domain.model.EventSource
-import dev.paradox.trace.domain.model.ManualSessionCommand
 import dev.paradox.trace.domain.model.SessionCompleteness
 import dev.paradox.trace.domain.model.TimeInterval
 import dev.paradox.trace.domain.repository.ManualSessionCommand
