@@ -45,15 +45,15 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = false
     }
+
+    lint {
+        textReport = true
+        abortOnError = true
+    }
 }
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
-}
-
-lint {
-    textReport = true
-    abortOnError = true
 }
 
 dependencies {
