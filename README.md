@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/bilibili-trace-logo.svg" alt="bilibili-trace project logo" width="420" />
+  <img src="docs/assets/bilibili-trace-logo.svg" alt="bilibili-trace project logo" width="150" />
 </p>
 
 <h1 align="center">Trace — 个人数字行为分析器</h1>
