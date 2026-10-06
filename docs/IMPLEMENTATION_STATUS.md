@@ -20,12 +20,12 @@ This file tracks verified repository state. Update it only after inspecting code
 - [x] Today dashboard: today/7-day stats (union-based), goal progress, recent sessions, delete, snackbar on save failure
 - [x] Timeline: 24h band + day navigation (29 days) + per-day list + five-week heat grid
 - [x] Settings: daily goal (DataStore), CSV/JSON export with schema versioning, confirmed delete-all
+- [x] Share-intent capture for Bilibili URLs (ACTION_SEND → BV 解析 → 元数据预填)
+- [x] Per-content ranking aggregates
 - [ ] UsageStats collection adapter
-- [ ] Share-intent capture for Bilibili URLs
-- [ ] BV metadata fetch via anonymous view API (see docs/BILIBILI_API_REFERENCE.md)
 - [ ] Accessibility recognition prototype
 - [ ] Settings (daily goal), CSV/JSON export, complete deletion flow UI
 - [ ] Weekly report based on traceable metrics
 
 ## Current quality status
-Spiral 2 complete (settings/goal → export/delete → BV metadata fetch → heat grid → review). CI passes build + lint + unit tests on every push (66+ unit tests). Known remaining gaps: instrumentation tests (DAO, migration, Compose UI) require a device/emulator run and are not yet authored; Room schema JSON files are generated in CI but not yet committed to version control.
+Spiral 3 complete: share-intent import, content ranking, suggested end times, delete confirmations, accessibility semantics for the timeline band. CI passes build + lint + unit tests on every push (70+ unit tests). Known remaining gaps: instrumentation tests (DAO, migration, Compose UI) require a device/emulator run and are not yet authored; Room schema JSON files are generated in CI but not committed; UsageStats auto-collection and weekly reports are next on the roadmap.

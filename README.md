@@ -26,7 +26,24 @@ minSdk 为 26，`mipmap-anydpi-v26` 已覆盖全部支持版本，因此不提�
 
 ## Repository status
 
-当前仓库包含产品/工程文档和 Android 初始工程骨架。**初始页面不代表采集功能已实现**；UsageStats、内容识别、Room 持久化和分析功能将按路线图分阶段实现，并以测试结果为准。
+Trace 现已包含**可用的本地 MVP**：手动记录、分享导入、统计与时间线、目标与数据导出。自动采集（UsageStats / 无障碍识别）仍按路线图分阶段实现，以测试结果为准。
+
+## Current features
+
+- **记录观看**：手动录入（标题 / BV 号 / UP主 / 起止时间），支持从 B 站 App 分享链接自动识别 BV 号并预填元数据
+- **今日概览**：今日时长、近 7 天合计、每日目标进度、最近记录、内容排行
+- **时间线**：24 小时观看色带 + 日期回溯（近 30 天）+ 近 5 周热力图
+- **设置**：每日观看目标（DataStore 本地存储）、CSV / JSON 导出（带 schema 版本）、一键清除全部数据
+- **隐私**：本地优先，无账号、无云端、无遥测；内容元数据仅存本机；非官方接口仅使用匿名视频详情端点（见 [Bilibili API reference](docs/BILIBILI_API_REFERENCE.md)）
+
+## 使用流程
+
+1. 在 B 站看完视频后，通过系统分享菜单把视频链接分享给 Trace（或手动记录）；
+2. Trace 自动获取标题、UP主与时长，确认起止时间后保存；
+3. 在「今日」查看统计与排行，在「时间线」回顾全天与近 5 周轨迹；
+4. 在「设置」设定每日目标、导出或清除数据。
+
+所有时间戳以 UTC 毫秒存储，按本地时区展示；重叠时段在统计中只计一次。
 
 ## Start here
 
@@ -37,13 +54,12 @@ minSdk 为 26，`mipmap-anydpi-v26` 已覆盖全部支持版本，因此不提�
 
 ## Initial Android stack
 
-- Kotlin
-- Jetpack Compose + Material 3
-- Android Gradle Plugin and Gradle versions pinned in build files / version catalog
-- JUnit for local unit tests
-- GitHub Actions for build, lint, and unit-test checks
+- Kotlin 2.2 + Jetpack Compose + Material 3（设计令牌见 [UI design reference](docs/UI_DESIGN_REFERENCE.md)）
+- Room（本地持久化，schema 导出）+ DataStore（偏好）
+- JUnit 单元测试（时间引擎、聚合、导出、解析器）
+- GitHub Actions：build + lint + unit test 每次推送验证
 
-The app is intentionally local-first. No backend, account system, remote AI, telemetry, or platform credentials are required for the initial skeleton.
+The app is local-first. No backend, account system, remote AI, or telemetry is involved; the only network call is the optional anonymous Bilibili view metadata lookup.
 
 ## Build and test
 

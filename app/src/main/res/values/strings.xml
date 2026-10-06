@@ -39,14 +39,12 @@
     <string name="session_delete_confirm_body">删除后无法恢复，不影响其他记录。</string>
     <string name="record_delete">删除</string>
 
-    <string name="timeline_placeholder">时间线将随记录数据生成。</string>
     <string name="timeline_no_data">这一天还没有记录。</string>
     <string name="timeline_prev_day">前一天</string>
     <string name="timeline_next_day">后一天</string>
     <string name="timeline_heat_title">近 5 周热力</string>
     <string name="timeline_heat_legend">颜色越深，当天观看越久（相对近 5 周最大值）。</string>
     <string name="timeline_band_desc">全天观看时间带：横向代表一天 24 小时，色块为观看时段。</string>
-    <string name="settings_placeholder">设置将在后续版本可用。</string>
     <string name="settings_goal_title">每日观看目标</string>
     <string name="settings_goal_body">目标只是参考刻度，不是评判。设为 0 表示不设目标。</string>
     <string name="settings_goal_input_label">目标（分钟，0–1440）</string>
