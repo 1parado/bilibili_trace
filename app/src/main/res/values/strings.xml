@@ -31,5 +31,8 @@
     <string name="delete_session">删除该记录</string>
 
     <string name="timeline_placeholder">时间线将随记录数据生成。</string>
+    <string name="timeline_no_data">这一天还没有记录。</string>
+    <string name="timeline_prev_day">前一天</string>
+    <string name="timeline_next_day">后一天</string>
     <string name="settings_placeholder">设置将在后续版本可用。</string>
 </resources>
