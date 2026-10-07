@@ -84,7 +84,7 @@ class UsageSessionSyncerTest {
     }
 
     private class FakeSource(
-        private val events: List<ForegroundEvent>,
+        private val events: List<ForegroundEvent> = emptyList(),
         private val error: Exception? = null,
     ) : ForegroundUsageSource {
         override fun queryEvents(
