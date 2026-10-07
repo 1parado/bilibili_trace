@@ -22,10 +22,12 @@ This file tracks verified repository state. Update it only after inspecting code
 - [x] Settings: daily goal (DataStore), CSV/JSON export with schema versioning, confirmed delete-all
 - [x] Share-intent capture for Bilibili URLs (ACTION_SEND → BV 解析 → 元数据预填)
 - [x] Per-content ranking aggregates
-- [ ] UsageStats collection adapter
-- [ ] Accessibility recognition prototype
-- [ ] Settings (daily goal), CSV/JSON export, complete deletion flow UI
+- [x] UsageStats collection adapter: optional usage-access grant, package-level foreground
+      sessions for Bilibili app family, synced on app open + manual sync + WorkManager 30-min
+      backfill; imports are idempotent via package+interval dedupe keys — planner/syncer/repository
+      unit tested (fake source & DAOs); on-device behavior still requires manual verification
+- [ ] Accessibility recognition prototype (per-video detail; separately disclosed, opt-in)
 - [ ] Weekly report based on traceable metrics
 
 ## Current quality status
-Spiral 3 complete: share-intent import, content ranking, suggested end times, delete confirmations, accessibility semantics for the timeline band. CI passes build + lint + unit tests on every push (70+ unit tests). Known remaining gaps: instrumentation tests (DAO, migration, Compose UI) require a device/emulator run and are not yet authored; Room schema JSON files are generated in CI but not committed; UsageStats auto-collection and weekly reports are next on the roadmap.
+Spiral 3 complete: share-intent import, content ranking, suggested end times, delete confirmations, accessibility semantics for the timeline band. Automatic usage recording (UsageStatsManager) is implemented behind pure domain interfaces: package-level foreground time only — no screen text, no content titles; sessions surface as「哔哩哔哩 · 自动记录」and are semantically distinct from manual/share entries. Still-open sessions at sync time are intentionally skipped (captured on the next sync) to avoid artificial interval boundaries. CI passes build + lint + unit tests on every push (90+ unit tests). Known remaining gaps: instrumentation tests (DAO, migration, Compose UI) require a device/emulator run and are not yet authored; Room schema JSON files are generated in CI but not committed; usage-access behavior on OEM ROMs (battery/background limits) needs manual device verification; weekly reports are next on the roadmap.
