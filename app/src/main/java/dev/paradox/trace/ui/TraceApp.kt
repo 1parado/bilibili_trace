@@ -86,10 +86,7 @@ fun TraceApp(sharedBvid: String? = null) {
                 .padding(innerPadding),
         ) {
             when (selectedTab) {
-                0 -> TodayScreen(
-                    viewModel = viewModel,
-                    onRecordClick = { showRecordSheet = true },
-                )
+                0 -> TodayScreen(viewModel = viewModel)
                 1 -> TimelineScreen()
                 else -> SettingsScreen()
             }

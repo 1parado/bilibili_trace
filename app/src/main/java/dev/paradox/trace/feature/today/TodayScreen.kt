@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,10 +31,7 @@ import dev.paradox.trace.ui.theme.TraceThemeExtended
 import java.time.ZoneId
 
 @Composable
-fun TodayScreen(
-    viewModel: TodayViewModel,
-    onRecordClick: () -> Unit,
-) {
+fun TodayScreen(viewModel: TodayViewModel) {
     val sessions by viewModel.sessions.collectAsStateWithLifecycle()
     val goalMinutes by viewModel.dailyGoalMinutes.collectAsStateWithLifecycle()
     val zone: ZoneId = ZoneId.systemDefault()
@@ -102,13 +98,6 @@ fun TodayScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-
-        Button(
-            onClick = onRecordClick,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(R.string.record_button))
         }
 
         Text(
