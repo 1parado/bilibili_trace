@@ -1,0 +1,80 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Verify, build APK, and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
+
+      - name: Set up Gradle and restore dependency cache
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.13"
+          cache-provider: basic
+
+      - name: Run unit tests and lint (retry transient repository failures)
+        shell: bash
+        run: |
+          set -uo pipefail
+          for attempt in 1 2 3; do
+            echo "Verification attempt ${attempt}/3"
+            if gradle --no-daemon --max-workers=2 testDebugUnitTest lintDebug; then
+              exit 0
+            else
+              status=$?
+            fi
+
+            if [ "${attempt}" -lt 3 ]; then
+              delay=$((attempt * 20))
+              echo "Gradle failed; retrying in ${delay}s..."
+              sleep "${delay}"
+            else
+              echo "Verification failed after 3 attempts."
+              exit "${status}"
+            fi
+          done
+
+      - name: Build APK
+        run: gradle --no-daemon --max-workers=2 assembleDebug
+
+      - name: Rename APK with tag
+        run: cp app/build/outputs/apk/debug/app-debug.apk "trace-${GITHUB_REF_NAME}.apk"
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: trace-*.apk
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            Trace ${{ github.ref_name }} — Android 安装包。
+
+            > 注意：本 APK 为 **debug 签名**构建（尚未配置发布签名密钥），可直接安装到设备，但不可与未来的正式签名版本共存安装。数据仅存储在本机（local-first），应用不会联网上传任何行为数据；唯一的网络调用是分享链接场景下对 B 站公开接口的匿名视频信息查询。

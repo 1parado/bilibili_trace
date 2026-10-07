@@ -36,6 +36,10 @@ Trace 现已包含**可用的本地 MVP**：手动记录、分享导入、统计
 - **设置**：每日观看目标（DataStore 本地存储）、CSV / JSON 导出（带 schema 版本）、一键清除全部数据
 - **隐私**：本地优先，无账号、无云端、无遥测；内容元数据仅存本机；非官方接口仅使用匿名视频详情端点（见 [Bilibili API reference](docs/BILIBILI_API_REFERENCE.md)）
 
+## 下载安装
+
+前往 [Releases](https://github.com/1parado/bilibili_trace/releases) 下载最新的 `trace-vX.Y.Z.apk` 直接安装即可。当前发布为 **debug 签名**构建（未配置发布签名密钥），不影响功能使用；正式签名版本将在签名流程就绪后提供。
+
 ## 使用流程
 
 1. 在 B 站看完视频后，通过系统分享菜单把视频链接分享给 Trace（或手动记录）；
