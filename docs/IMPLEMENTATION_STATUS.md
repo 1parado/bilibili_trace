@@ -26,7 +26,12 @@ This file tracks verified repository state. Update it only after inspecting code
       sessions for Bilibili app family, synced on app open + manual sync + WorkManager 30-min
       backfill; imports are idempotent via package+interval dedupe keys — planner/syncer/repository
       unit tested (fake source & DAOs); on-device behavior still requires manual verification
-- [ ] Accessibility recognition prototype (per-video detail; separately disclosed, opt-in)
+- [x] Accessibility recognition (title-level): scoped service reads only the video page title
+      of Bilibili packages, extraction is a pure unit-tested heuristic (view-id preference,
+      longest-plausible fallback, label/time/url exclusion); same title shares one content
+      identity with ACCESSIBILITY provenance and userVerified=false; no automation, no screen
+      text storage; on-device extraction accuracy on real app versions still needs verification
+- [x] Manual recording entry removed by product decision; share-intent quick save retained
 - [ ] Weekly report based on traceable metrics
 
 ## Current quality status
