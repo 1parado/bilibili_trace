@@ -37,16 +37,19 @@ class UsageSessionPlannerTest {
         val planned = UsageSessionPlanner.plan(
             events = listOf(
                 event(foreground = true, atMs = 1_000L),
-                event(foreground = false, atMs = 2_000L),
-                event(foreground = true, atMs = 10_000L),
-                event(foreground = false, atMs = 70_000L),
+                event(foreground = false, atMs = 60_000L),
+                event(foreground = true, atMs = 100_000L),
+                event(foreground = false, atMs = 170_000L),
             ),
             targetPackages = targets,
             windowStartMs = 0L,
             windowEndMs = 1_000_000L,
         )
 
-        assertEquals(listOf(1_000L to 2_000L, 10_000L to 70_000L), planned.map { it.interval.startInclusiveMs to it.interval.endExclusiveMs })
+        assertEquals(
+            listOf(1_000L to 60_000L, 100_000L to 170_000L),
+            planned.map { it.interval.startInclusiveMs to it.interval.endExclusiveMs },
+        )
     }
 
     @Test
