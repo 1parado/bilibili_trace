@@ -80,4 +80,31 @@ class SessionStatsTest {
         assertEquals("视频B", top[1].label)
         assertEquals(1, top[1].count)
     }
+
+    @Test
+    fun `topCreators aggregates by creator and skips unnamed content`() {
+        val content = { title: String, creator: String? ->
+            dev.paradox.trace.domain.model.ContentRef("bilibili", "BV$title", title, creator)
+        }
+        val sessions = listOf(
+            session("a", localMs(2026, 10, 6, 9, 0), localMs(2026, 10, 6, 10, 0))
+                .copy(content = content("视频A", "UP主甲")),
+            session("a2", localMs(2026, 10, 5, 9, 0), localMs(2026, 10, 5, 10, 30))
+                .copy(content = content("视频A2", " UP主甲 ")),
+            session("b", localMs(2026, 10, 6, 11, 0), localMs(2026, 10, 6, 12, 0))
+                .copy(content = content("视频B", "UP主乙")),
+            session("bare", localMs(2026, 10, 6, 13, 0), localMs(2026, 10, 6, 14, 0)),
+            session("nullCreator", localMs(2026, 10, 6, 15, 0), localMs(2026, 10, 6, 16, 0))
+                .copy(content = content("视频C", null)),
+        )
+
+        val top = SessionStats.topCreators(sessions)
+
+        assertEquals(2, top.size)
+        assertEquals("UP主甲", top[0].name)
+        assertEquals(9_000_000L, top[0].totalMs)
+        assertEquals(2, top[0].count)
+        assertEquals("UP主乙", top[1].name)
+        assertEquals(3_600_000L, top[1].totalMs)
+    }
 }

@@ -78,6 +78,40 @@ object SessionStats {
             }
     }
 
+    /**
+     * Aggregates sessions per creator, most-watched first. Only sessions
+     * whose content carries a creator name count; per-session durations are
+     * summed (per-session facts), matching topContent semantics.
+     */
+    fun topCreators(
+        sessions: List<ContentSession>,
+        limit: Int = 5,
+    ): List<CreatorAggregate> {
+        require(limit > 0) { "limit must be positive" }
+        data class MutableAggregate(var totalMs: Long, var count: Int)
+
+        val byCreator = LinkedHashMap<String, MutableAggregate>()
+        for (session in sessions) {
+            val creator = session.content?.creatorName?.trim().orEmpty()
+            if (creator.isEmpty()) continue
+            val aggregate = byCreator.getOrPut(creator) { MutableAggregate(0L, 0) }
+            aggregate.totalMs += session.interval.durationMs
+            aggregate.count += 1
+        }
+        return byCreator.entries
+            .sortedByDescending { it.value.totalMs }
+            .take(limit)
+            .map { (name, value) ->
+                CreatorAggregate(name = name, totalMs = value.totalMs, count = value.count)
+            }
+    }
+
+    data class CreatorAggregate(
+        val name: String,
+        val totalMs: Long,
+        val count: Int,
+    )
+
     data class ContentAggregate(
         val key: String,
         val label: String,

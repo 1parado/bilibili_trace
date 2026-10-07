@@ -153,6 +153,40 @@ fun TodayScreen(viewModel: TodayViewModel) {
                     }
                 }
             }
+            val topCreators = remember(sessions) { SessionStats.topCreators(sessions) }
+            if (topCreators.isNotEmpty()) {
+                Text(
+                    text = stringResource(R.string.today_creators_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    topCreators.forEach { creator ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text(
+                                text = creator.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = stringResource(R.string.today_top_count, creator.count),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = DurationFormatter.format(creator.totalMs),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            )
+                        }
+                    }
+                }
+            }
             Text(
                 text = stringResource(R.string.recent_sessions_title),
                 style = MaterialTheme.typography.titleMedium,

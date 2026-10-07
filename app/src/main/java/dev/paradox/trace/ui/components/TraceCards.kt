@@ -104,6 +104,14 @@ fun SessionRow(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                 )
+                val creator = session.content?.creatorName?.trim().orEmpty()
+                if (creator.isNotEmpty()) {
+                    Text(
+                        text = creator,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Text(
                     text = formatRange(
                         session.interval.startInclusiveMs,
