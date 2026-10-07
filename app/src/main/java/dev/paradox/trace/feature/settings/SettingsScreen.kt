@@ -1,5 +1,7 @@
 package dev.paradox.trace.feature.settings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,15 +50,21 @@ fun SettingsScreen() {
         factory = SettingsViewModel.factory(
             userPreferences = application.userPreferencesRepository,
             sessionRepository = application.sessionRepository,
+            usageAccessChecker = application.usageAccessChecker,
+            usageSessionSyncer = application.usageSessionSyncer,
         ),
     )
 
     val goalMinutes by viewModel.dailyGoalMinutes.collectAsStateWithLifecycle()
+    val usageAccessGranted by viewModel.usageAccessGranted.collectAsStateWithLifecycle()
     var goalInput by rememberSaveable { mutableStateOf("") }
     var goalMessage by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var usageMessage by remember { mutableStateOf<String?>(null) }
     val goalSavedText = stringResource(R.string.settings_goal_saved)
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) { viewModel.refreshUsageAccess() }
 
     var pendingExport by remember { mutableStateOf<Pair<String, String>?>(null) }
     val exportLauncher = rememberLauncherForActivityResult(
@@ -137,6 +146,79 @@ fun SettingsScreen() {
                 if (goalMessage != null) {
                     Text(
                         text = goalMessage.orEmpty(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_usage_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = stringResource(R.string.settings_usage_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(
+                        if (usageAccessGranted == true) {
+                            R.string.settings_usage_status_on
+                        } else {
+                            R.string.settings_usage_status_off
+                        },
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (usageAccessGranted == true) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                viewModel.syncUsageNow { result ->
+                                    usageMessage = result.fold(
+                                        onSuccess = { imported ->
+                                            context.getString(
+                                                if (imported == 0) {
+                                                    R.string.settings_usage_sync_zero
+                                                } else {
+                                                    R.string.settings_usage_sync_done
+                                                },
+                                                imported,
+                                            )
+                                        },
+                                        onFailure = { context.getString(R.string.settings_usage_sync_failed) },
+                                    )
+                                }
+                            }
+                        },
+                    ) {
+                        Text(stringResource(R.string.settings_usage_sync_now))
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                        },
+                    ) {
+                        Text(stringResource(R.string.settings_usage_open_settings))
+                    }
+                }
+                if (usageMessage != null) {
+                    Text(
+                        text = usageMessage.orEmpty(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

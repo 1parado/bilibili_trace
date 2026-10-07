@@ -11,6 +11,7 @@ import dev.paradox.trace.data.local.entity.ContentItemEntity
 import dev.paradox.trace.domain.model.EventSource
 import dev.paradox.trace.domain.model.SessionCompleteness
 import dev.paradox.trace.domain.repository.ManualSessionCommand
+import dev.paradox.trace.domain.repository.UsageSessionCommand
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -158,6 +159,85 @@ class RoomSessionRepositoryTest {
         assertTrue(base != DedupeKeys.manualSession("bilibili", "BV2", 100L, 200L))
         assertTrue(base != DedupeKeys.manualSession("bilibili", "BV1", 100L, 201L))
         assertEquals(base, DedupeKeys.manualSession("bilibili", "BV1", 100L, 200L))
+    }
+
+    private fun usageCommand(
+        packageName: String = "tv.danmaku.bili",
+        startMs: Long = now.get() - 3_600_000L,
+        endMs: Long = now.get() - 1_800_000L,
+    ) = UsageSessionCommand(
+        packageName = packageName,
+        platform = "bilibili",
+        startedAtMs = startMs,
+        endedAtMs = endMs,
+    )
+
+    @Test
+    fun `addUsageSessions stores package-level sessions without content`() = runTest {
+        val (repo, fakes) = repository()
+
+        val imported = repo.addUsageSessions(listOf(usageCommand()))
+
+        assertEquals(1, imported)
+        assertEquals(1, fakes.sessionDao.rows.size)
+        assertEquals(0, fakes.contentDao.rows.size)
+        val entity = fakes.sessionDao.rows.values.single()
+        assertEquals(EventSource.USAGE_STATS.name, entity.source)
+        assertEquals(SessionCompleteness.COMPLETE.name, entity.completeness)
+        assertEquals("tv.danmaku.bili", entity.packageName)
+        assertEquals(null, entity.contentId)
+    }
+
+    @Test
+    fun `re-importing the same usage intervals is idempotent`() = runTest {
+        val (repo, fakes) = repository()
+
+        val first = repo.addUsageSessions(listOf(usageCommand()))
+        val second = repo.addUsageSessions(listOf(usageCommand()))
+
+        assertEquals(1, first)
+        assertEquals(0, second)
+        assertEquals(1, fakes.sessionDao.rows.size)
+        assertEquals(1, fakes.eventDao.rows.size)
+    }
+
+    @Test
+    fun `usage dedupe keys differ by package`() = runTest {
+        val (repo, fakes) = repository()
+
+        val imported = repo.addUsageSessions(
+            listOf(
+                usageCommand(packageName = "tv.danmaku.bili"),
+                usageCommand(packageName = "com.bilibili.app.in"),
+            ),
+        )
+
+        assertEquals(2, imported)
+        assertEquals(2, fakes.sessionDao.rows.size)
+    }
+
+    @Test
+    fun `invalid usage commands are skipped without blocking the batch`() = runTest {
+        val (repo, fakes) = repository()
+
+        val imported = repo.addUsageSessions(
+            listOf(
+                usageCommand(startMs = now.get(), endMs = now.get() - 1L), // inverted
+                usageCommand(startMs = now.get() + 10_000_000L, endMs = now.get() + 20_000_000L), // future
+                usageCommand(), // valid
+            ),
+        )
+
+        assertEquals(1, imported)
+        assertEquals(1, fakes.sessionDao.rows.size)
+    }
+
+    @Test
+    fun `usage dedupe key distinguishes package and time`() {
+        val base = DedupeKeys.usageSession("tv.danmaku.bili", 100L, 200L)
+        assertTrue(base != DedupeKeys.usageSession("tv.danmaku.bili", 100L, 201L))
+        assertTrue(base != DedupeKeys.usageSession("com.bilibili.app.in", 100L, 200L))
+        assertEquals(base, DedupeKeys.usageSession("tv.danmaku.bili", 100L, 200L))
     }
 }
 

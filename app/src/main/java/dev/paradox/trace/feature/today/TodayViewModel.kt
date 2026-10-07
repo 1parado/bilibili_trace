@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import dev.paradox.trace.domain.collection.UsageSessionSyncer
 import dev.paradox.trace.domain.model.ContentSession
 import dev.paradox.trace.domain.repository.ManualSessionCommand
 import dev.paradox.trace.domain.repository.SessionRepository
@@ -17,7 +18,14 @@ import kotlinx.coroutines.launch
 class TodayViewModel(
     private val sessionRepository: SessionRepository,
     userPreferencesRepository: UserPreferencesRepository,
+    private val usageSessionSyncer: UsageSessionSyncer,
 ) : ViewModel() {
+
+    init {
+        // Silent auto-import on open; when usage access is not granted the
+        // source yields no events and this completes without side effects.
+        viewModelScope.launch { usageSessionSyncer.sync() }
+    }
 
     val sessions: StateFlow<List<ContentSession>> = sessionRepository.observeAllSessions()
         .stateIn(
@@ -49,8 +57,9 @@ class TodayViewModel(
         fun factory(
             sessionRepository: SessionRepository,
             userPreferencesRepository: UserPreferencesRepository,
+            usageSessionSyncer: UsageSessionSyncer,
         ): ViewModelProvider.Factory = viewModelFactory {
-            initializer { TodayViewModel(sessionRepository, userPreferencesRepository) }
+            initializer { TodayViewModel(sessionRepository, userPreferencesRepository, usageSessionSyncer) }
         }
     }
 }

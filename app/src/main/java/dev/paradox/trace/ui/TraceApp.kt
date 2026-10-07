@@ -46,6 +46,7 @@ fun TraceApp(sharedBvid: String? = null) {
         factory = TodayViewModel.factory(
             sessionRepository = application.sessionRepository,
             userPreferencesRepository = application.userPreferencesRepository,
+            usageSessionSyncer = application.usageSessionSyncer,
         ),
     )
 

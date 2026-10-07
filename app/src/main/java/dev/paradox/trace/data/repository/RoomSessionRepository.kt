@@ -15,6 +15,7 @@ import dev.paradox.trace.domain.model.SessionCompleteness
 import dev.paradox.trace.domain.model.TimeInterval
 import dev.paradox.trace.domain.repository.ManualSessionCommand
 import dev.paradox.trace.domain.repository.SessionRepository
+import dev.paradox.trace.domain.repository.UsageSessionCommand
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -106,6 +107,61 @@ class RoomSessionRepository(
             Result.success(SessionMapper.toDomain(session, contentItem))
         }
     }
+
+    /**
+     * Usage imports carry no content identity (package-level observation),
+     * are persisted as USAGE_STATS/COMPLETE, and are idempotent via dedupe
+     * keys. Invalid commands are skipped individually; one bad interval must
+     * not block a whole import batch.
+     */
+    override suspend fun addUsageSessions(commands: List<UsageSessionCommand>): Int =
+        transactionRunner.inTransaction {
+            val now = nowMs()
+            var imported = 0
+            for (command in commands) {
+                if (command.startedAtMs > command.endedAtMs) continue
+                if (command.endedAtMs > now + FUTURE_SKEW_TOLERANCE_MS) continue
+
+                val dedupeKey = DedupeKeys.usageSession(
+                    packageName = command.packageName,
+                    startedAtMs = command.startedAtMs,
+                    endedAtMs = command.endedAtMs,
+                )
+                val sessionId = deterministicId(dedupeKey)
+                val inserted = behaviorEventDao.insert(
+                    BehaviorEventEntity(
+                        id = sessionId,
+                        platform = command.platform,
+                        source = EventSource.USAGE_STATS.name,
+                        eventType = EVENT_SESSION_ENDED,
+                        occurredAt = command.endedAtMs,
+                        sessionId = sessionId,
+                        contentId = null,
+                        confidence = null,
+                        evidenceRef = null,
+                        dedupeKey = dedupeKey,
+                        schemaVersion = SCHEMA_VERSION,
+                        createdAt = now,
+                    ),
+                )
+                if (inserted == DUPLICATE_IGNORED) continue
+
+                appSessionDao.upsert(
+                    SessionMapper.toEntity(
+                        sessionId = sessionId,
+                        platform = command.platform,
+                        packageName = command.packageName,
+                        interval = TimeInterval(command.startedAtMs, command.endedAtMs),
+                        source = EventSource.USAGE_STATS,
+                        completeness = SessionCompleteness.COMPLETE,
+                        contentLocalId = null,
+                        nowMs = now,
+                    ),
+                )
+                imported++
+            }
+            imported
+        }
 
     override suspend fun deleteSession(id: String) {
         transactionRunner.inTransaction {

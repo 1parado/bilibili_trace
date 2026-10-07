@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontFamily
 import dev.paradox.trace.R
 import dev.paradox.trace.core.time.DurationFormatter
 import dev.paradox.trace.domain.model.ContentSession
+import dev.paradox.trace.domain.model.EventSource
 import dev.paradox.trace.ui.components.SessionTimeText.formatRange
 import java.time.ZoneId
 
@@ -95,7 +96,11 @@ fun SessionRow(
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = session.content?.title
-                        ?: stringResource(R.string.session_unnamed),
+                        ?: if (session.source == EventSource.USAGE_STATS) {
+                            stringResource(R.string.session_auto_record)
+                        } else {
+                            stringResource(R.string.session_unnamed)
+                        },
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                 )

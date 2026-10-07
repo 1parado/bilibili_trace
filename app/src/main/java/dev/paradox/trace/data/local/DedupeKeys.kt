@@ -19,4 +19,20 @@ object DedupeKeys {
         startedAtMs.toString(),
         endedAtMs.toString(),
     ).joinToString(separator = "|")
+
+    /**
+     * Platform-observed usage sessions. Keyed by package and exact interval
+     * so repeated imports of the same system-reported interval are idempotent.
+     */
+    fun usageSession(
+        packageName: String,
+        startedAtMs: Long,
+        endedAtMs: Long,
+    ): String = listOf(
+        "USAGE_STATS",
+        "SESSION_ENDED",
+        packageName,
+        startedAtMs.toString(),
+        endedAtMs.toString(),
+    ).joinToString(separator = "|")
 }

@@ -15,6 +15,17 @@ data class ManualSessionCommand(
     val metadataSource: String? = null,
 )
 
+/**
+ * Command for importing a platform-observed foreground session. Package-level
+ * only: no content identity exists at this observation level, by design.
+ */
+data class UsageSessionCommand(
+    val packageName: String,
+    val platform: String,
+    val startedAtMs: Long,
+    val endedAtMs: Long,
+)
+
 /** Read/write gateway for content sessions. Sources never certify truth. */
 interface SessionRepository {
 
@@ -28,6 +39,13 @@ interface SessionRepository {
      * failure when the command violates time semantics.
      */
     suspend fun addManualSession(command: ManualSessionCommand): Result<ContentSession>
+
+    /**
+     * Persists platform-observed usage sessions idempotently; re-importing
+     * the same intervals returns 0. Invalid commands are skipped, not fatal.
+     * Returns the number of newly stored sessions.
+     */
+    suspend fun addUsageSessions(commands: List<UsageSessionCommand>): Int
 
     suspend fun deleteSession(id: String)
 
