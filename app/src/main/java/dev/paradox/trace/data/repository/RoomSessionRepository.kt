@@ -178,28 +178,40 @@ class RoomSessionRepository(
 
         return transactionRunner.inTransaction {
             val now = nowMs()
-            val contentLocalId = "observed:${deterministicId(command.title)}"
+            val normalizedTitle = command.title.trim()
+
+            // If the same title was already enriched (share import fetched the
+            // creator via the platform API), reuse that content identity so the
+            // observed session inherits the creator instead of forking a bare
+            // "observed:" row. Deterministic, local, no network.
+            val enrichedContent = contentItemDao.getByTitle(PLATFORM_BILIBILI, normalizedTitle)
+            val contentLocalId = enrichedContent?.id
+                ?: "observed:${deterministicId(normalizedTitle)}"
             val existingContent = contentItemDao.getById(contentLocalId)
-            val contentItem = ContentItemEntity(
-                id = contentLocalId,
-                platform = PLATFORM_BILIBILI,
-                platformContentId = null,
-                canonicalUrl = null,
-                title = command.title,
-                creatorId = null,
-                creatorName = null,
-                userTopic = null,
-                metadataSource = EventSource.ACCESSIBILITY.name,
-                metadataConfidence = null,
-                firstSeenAt = existingContent?.firstSeenAt ?: now,
-                lastSeenAt = now,
-                userVerified = false,
-            )
+            val contentItem = if (enrichedContent != null) {
+                enrichedContent.copy(lastSeenAt = now)
+            } else {
+                ContentItemEntity(
+                    id = contentLocalId,
+                    platform = PLATFORM_BILIBILI,
+                    platformContentId = null,
+                    canonicalUrl = null,
+                    title = normalizedTitle,
+                    creatorId = null,
+                    creatorName = null,
+                    userTopic = null,
+                    metadataSource = EventSource.ACCESSIBILITY.name,
+                    metadataConfidence = null,
+                    firstSeenAt = existingContent?.firstSeenAt ?: now,
+                    lastSeenAt = now,
+                    userVerified = false,
+                )
+            }
             contentItemDao.upsert(contentItem)
 
             val dedupeKey = DedupeKeys.accessibilitySession(
                 packageName = command.packageName,
-                title = command.title,
+                title = normalizedTitle,
                 startedAtMs = command.startedAtMs,
                 endedAtMs = command.endedAtMs,
             )
@@ -306,8 +318,34 @@ class RoomSessionRepository(
     ): List<ContentSession> {
         val contentById = contents.associateBy { it.id }
         return sessions.map { session ->
-            SessionMapper.toDomain(session, session.contentId?.let { contentById[it] })
+            val content = session.contentId?.let { contentById[it] }
+            // Read-side fallback: bare observed rows (title only) borrow the
+            // creator from an identically-titled enriched entry, so creator
+            // stats stay complete for history written before merging existed.
+            val resolved = content?.let { entity ->
+                if (entity.creatorName.isNullOrBlank()) {
+                    borrowCreator(entity, contents)
+                } else {
+                    entity
+                }
+            }
+            SessionMapper.toDomain(session, resolved)
         }
+    }
+
+    private fun borrowCreator(
+        entity: ContentItemEntity,
+        contents: List<ContentItemEntity>,
+    ): ContentItemEntity {
+        val title = entity.title?.trim() ?: return entity
+        if (title.isEmpty()) return entity
+        val donor = contents.firstOrNull {
+            it.id != entity.id &&
+                it.platform == entity.platform &&
+                !it.creatorName.isNullOrBlank() &&
+                it.title?.trim() == title
+        } ?: return entity
+        return entity.copy(creatorName = donor.creatorName)
     }
 
     private fun deterministicId(key: String): String =

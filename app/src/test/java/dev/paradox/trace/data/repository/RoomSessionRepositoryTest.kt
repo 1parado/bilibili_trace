@@ -296,6 +296,39 @@ class RoomSessionRepositoryTest {
     }
 
     @Test
+    fun `accessibility session with matching title inherits enriched creator`() = runTest {
+        val (repo, fakes) = repository()
+
+        // Share import enriched the content identity via the platform API.
+        repo.addManualSession(command(title = "  测试视频 "))
+        now.addAndGet(10_000_000L)
+        val observed = repo.addAccessibilitySession(a11yCommand(title = "测试视频"))
+
+        assertTrue(observed.isSuccess)
+        val content = observed.getOrThrow().content
+        assertEquals("测试UP主", content?.creatorName)
+        assertEquals("BV1xx411c7mD", content?.platformContentId)
+        assertEquals(1, fakes.contentDao.rows.size)
+    }
+
+    @Test
+    fun `observed sessions borrow creator from enriched entry at read time`() = runTest {
+        val (repo, fakes) = repository()
+
+        // History written before title merging existed: two separate rows.
+        val observed = repo.addAccessibilitySession(a11yCommand(title = "测试视频"))
+        now.addAndGet(10_000_000L)
+        repo.addManualSession(command()) // same default title, enriched with creator
+
+        val sessions = repo.observeAllSessions().first()
+        val bareObserved = sessions.first {
+            it.id == observed.getOrThrow().id
+        }
+        assertEquals("测试UP主", bareObserved.content?.creatorName)
+        assertTrue(fakes.contentDao.rows.size >= 2)
+    }
+
+    @Test
     fun `blank title accessibility session is rejected`() = runTest {
         val (repo, fakes) = repository()
 
@@ -370,6 +403,12 @@ private class ContentItemDaoFake : ContentItemDao {
 
     override suspend fun getByPlatformContentId(platformContentId: String): ContentItemEntity? =
         rows.values.firstOrNull { it.platformContentId == platformContentId }
+
+    override suspend fun getByTitle(platform: String, title: String): ContentItemEntity? =
+        rows.values
+            .filter { it.platform == platform && it.title?.trim() == title }
+            .sortedWith(compareByDescending<ContentItemEntity> { !it.creatorName.isNullOrBlank() }.thenByDescending { it.lastSeenAt ?: 0L })
+            .firstOrNull()
 
     override fun observeAll(): Flow<List<ContentItemEntity>> = flow
 
