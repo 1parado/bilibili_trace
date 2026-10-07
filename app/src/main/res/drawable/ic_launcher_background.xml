@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Full-bleed brand-blue background of the adaptive launcher icon. -->
+<!-- Full-bleed light background matching docs/assets/bilibili-trace-logo.svg. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#1680DB" />
+    <solid android:color="#FAFAFA" />
 </shape>

@@ -1,58 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Foreground layer of the adaptive launcher icon.
+<!-- Foreground layer of the adaptive launcher icon, derived from
+     docs/assets/bilibili-trace-logo.svg.
 
-     All artwork is confined to the 66dp safe zone (circle centered at
-     54,54 with radius 33 in this 108dp viewport) so round, squircle,
-     and rounded-square launcher masks never clip the mascot. -->
+     The SVG's 512x560 artwork (TV mascot + clock, text and drop shadow
+     removed) is scaled by 0.147 and centered on 54,54 so every extreme
+     point stays inside the 66dp safe-zone circle (verified: outer corner
+     32.5, antenna caps 31.5, clock top 28.3, feet 31.5). The logo's
+     linear gradient is flattened to solid #1680DB. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- TV body -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M31,43 Q31,35 39,35 H69 Q77,35 77,43 V63 Q77,71 69,71 H39 Q31,71 31,63 Z" />
-    <!-- Antennas -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
-        android:strokeLineCap="round"
-        android:pathData="M43,35 L37,29 M65,35 L71,29" />
-    <!-- Clock badge -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="3"
-        android:pathData="M54,23 A8,8 0,1 0,54,39 A8,8 0,1 0,54,23 Z" />
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#1680DB"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:pathData="M48.5,31 h2 M59,31 h2 M54,34.5 v2" />
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#1680DB"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M54,27.8 v3.2 l2.9,1.7" />
-    <!-- Sleepy eyes -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M37,50 L46,47 L47,52 L38,55 Z M71,50 L62,47 L61,52 L70,55 Z" />
-    <!-- Smiling moustache -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="3"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M41,60 Q47.5,67 54,60 Q60.5,67 67,60" />
+    <group
+        android:translateX="16.37"
+        android:translateY="21.51"
+        android:scaleX="0.147"
+        android:scaleY="0.147">
+        <!-- Antennas -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="24"
+            android:strokeLineCap="round"
+            android:pathData="M188,87 L150,48 M324,87 L362,48" />
+        <!-- TV body (rounded rect, stroke centered like the SVG) -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="29"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M122,94 H390 A58,58 0 0 1 448,152 V340 A58,58 0 0 1 390,398 H122 A58,58 0 0 1 64,340 V152 A58,58 0 0 1 122,94 Z" />
+        <!-- Feet -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="31"
+            android:strokeLineCap="round"
+            android:pathData="M162,398 L162,395 M350,398 L350,395" />
+        <!-- Clock badge: white disc + blue ring -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M256,34 A65,65 0 1 0 256,164 A65,65 0 1 0 256,34 Z" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="11"
+            android:pathData="M256,34 A65,65 0 1 0 256,164 A65,65 0 1 0 256,34 Z" />
+        <!-- Clock ticks and hands -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="7"
+            android:strokeLineCap="round"
+            android:pathData="M256,55 L256,63 M256,135 L256,143 M213,99 L221,99 M291,99 L299,99" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="10"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M256,74 L256,99 L279,112" />
+        <!-- Sleepy eyes -->
+        <path
+            android:fillColor="#1680DB"
+            android:pathData="M140,188 L211,166 L219,194 L148,216 Z M301,166 L372,188 L364,216 L293,194 Z" />
+        <!-- Smiling moustache -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1680DB"
+            android:strokeWidth="15"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M202,253 C219,278 245,278 256,253 C267,278 293,278 310,253" />
+    </group>
 </vector>
