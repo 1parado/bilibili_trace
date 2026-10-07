@@ -52,11 +52,13 @@ fun SettingsScreen() {
             sessionRepository = application.sessionRepository,
             usageAccessChecker = application.usageAccessChecker,
             usageSessionSyncer = application.usageSessionSyncer,
+            accessibilityServiceChecker = application.accessibilityServiceChecker,
         ),
     )
 
     val goalMinutes by viewModel.dailyGoalMinutes.collectAsStateWithLifecycle()
     val usageAccessGranted by viewModel.usageAccessGranted.collectAsStateWithLifecycle()
+    val accessibilityEnabled by viewModel.accessibilityEnabled.collectAsStateWithLifecycle()
     var goalInput by rememberSaveable { mutableStateOf("") }
     var goalMessage by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -64,7 +66,10 @@ fun SettingsScreen() {
     val goalSavedText = stringResource(R.string.settings_goal_saved)
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) { viewModel.refreshUsageAccess() }
+    LaunchedEffect(Unit) {
+        viewModel.refreshUsageAccess()
+        viewModel.refreshAccessibilityState()
+    }
 
     var pendingExport by remember { mutableStateOf<Pair<String, String>?>(null) }
     val exportLauncher = rememberLauncherForActivityResult(
@@ -223,6 +228,51 @@ fun SettingsScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_a11y_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = stringResource(R.string.settings_a11y_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(
+                        if (accessibilityEnabled == true) {
+                            R.string.settings_a11y_status_on
+                        } else {
+                            R.string.settings_a11y_status_off
+                        },
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Button(
+                    onClick = {
+                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    },
+                ) {
+                    Text(stringResource(R.string.settings_a11y_open_settings))
+                }
+                Text(
+                    text = stringResource(R.string.settings_a11y_note, stringResource(R.string.a11y_service_label)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
 

@@ -5,6 +5,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.room.Room
+import dev.paradox.trace.data.accessibility.AccessibilityServiceChecker
 import dev.paradox.trace.data.local.RoomTransactionRunner
 import dev.paradox.trace.data.local.TraceDatabase
 import dev.paradox.trace.data.remote.BilibiliViewApi
@@ -51,6 +52,10 @@ class TraceApplication : Application() {
 
     val usageAccessChecker: UsageAccessChecker by lazy {
         UsageAccessChecker(this)
+    }
+
+    val accessibilityServiceChecker: AccessibilityServiceChecker by lazy {
+        AccessibilityServiceChecker(this)
     }
 
     val usageSessionSyncer: UsageSessionSyncer by lazy {

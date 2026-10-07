@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Scoped observation config: only Bilibili app packages, only window state /
+  content change events, content retrieval enabled solely to extract the
+  video title of the active playback page. The user enables and revokes this
+  service entirely from system settings.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="true"
+    android:notificationTimeout="500"
+    android:packageNames="tv.danmaku.bili,tv.danmaku.bilibilihd,com.bilibili.app.in"
+    android:summary="@string/a11y_service_summary"
+    android:description="@string/a11y_service_description" />

@@ -121,6 +121,10 @@ class UsageSessionSyncerTest {
             return imported
         }
 
+        override suspend fun addAccessibilitySession(
+            command: dev.paradox.trace.domain.repository.AccessibilitySessionCommand,
+        ): Result<ContentSession> = Result.failure(UnsupportedOperationException("not needed in this test"))
+
         override suspend fun deleteSession(id: String) = Unit
 
         override suspend fun deleteAllData() = Unit

@@ -13,6 +13,7 @@ import dev.paradox.trace.domain.model.ContentSession
 import dev.paradox.trace.domain.model.EventSource
 import dev.paradox.trace.domain.model.SessionCompleteness
 import dev.paradox.trace.domain.model.TimeInterval
+import dev.paradox.trace.domain.repository.AccessibilitySessionCommand
 import dev.paradox.trace.domain.repository.ManualSessionCommand
 import dev.paradox.trace.domain.repository.SessionRepository
 import dev.paradox.trace.domain.repository.UsageSessionCommand
@@ -163,6 +164,87 @@ class RoomSessionRepository(
             imported
         }
 
+    /**
+     * Accessibility observations carry title-level metadata (recognition
+     * output, userVerified=false). Same title across sessions resolves to one
+     * content identity via a deterministic local id. Idempotent like manual
+     * entries; invalid commands fail without partial writes.
+     */
+    override suspend fun addAccessibilitySession(
+        command: AccessibilitySessionCommand,
+    ): Result<ContentSession> {
+        val validationFailure = validateAccessibility(command)
+        if (validationFailure != null) return Result.failure(validationFailure)
+
+        return transactionRunner.inTransaction {
+            val now = nowMs()
+            val contentLocalId = "observed:${deterministicId(command.title)}"
+            val existingContent = contentItemDao.getById(contentLocalId)
+            val contentItem = ContentItemEntity(
+                id = contentLocalId,
+                platform = PLATFORM_BILIBILI,
+                platformContentId = null,
+                canonicalUrl = null,
+                title = command.title,
+                creatorId = null,
+                creatorName = null,
+                userTopic = null,
+                metadataSource = EventSource.ACCESSIBILITY.name,
+                metadataConfidence = null,
+                firstSeenAt = existingContent?.firstSeenAt ?: now,
+                lastSeenAt = now,
+                userVerified = false,
+            )
+            contentItemDao.upsert(contentItem)
+
+            val dedupeKey = DedupeKeys.accessibilitySession(
+                packageName = command.packageName,
+                title = command.title,
+                startedAtMs = command.startedAtMs,
+                endedAtMs = command.endedAtMs,
+            )
+            val sessionId = deterministicId(dedupeKey)
+            val inserted = behaviorEventDao.insert(
+                BehaviorEventEntity(
+                    id = sessionId,
+                    platform = PLATFORM_BILIBILI,
+                    source = EventSource.ACCESSIBILITY.name,
+                    eventType = EVENT_SESSION_ENDED,
+                    occurredAt = command.endedAtMs,
+                    sessionId = sessionId,
+                    contentId = contentLocalId,
+                    confidence = null,
+                    evidenceRef = null,
+                    dedupeKey = dedupeKey,
+                    schemaVersion = SCHEMA_VERSION,
+                    createdAt = now,
+                ),
+            )
+
+            if (inserted == DUPLICATE_IGNORED) {
+                val existing = appSessionDao.getById(sessionId)
+                if (existing != null) {
+                    return@inTransaction Result.success(
+                        SessionMapper.toDomain(existing, contentItem),
+                    )
+                }
+            }
+
+            val session = SessionMapper.toEntity(
+                sessionId = sessionId,
+                platform = PLATFORM_BILIBILI,
+                packageName = command.packageName,
+                interval = TimeInterval(command.startedAtMs, command.endedAtMs),
+                source = EventSource.ACCESSIBILITY,
+                completeness = SessionCompleteness.COMPLETE,
+                contentLocalId = contentLocalId,
+                nowMs = now,
+            )
+            appSessionDao.upsert(session)
+            Result.success(SessionMapper.toDomain(session, contentItem))
+        }
+    }
+
     override suspend fun deleteSession(id: String) {
         transactionRunner.inTransaction {
             appSessionDao.deleteById(id)
@@ -178,6 +260,16 @@ class RoomSessionRepository(
     }
 
     private fun validate(command: ManualSessionCommand): Throwable? = when {
+        command.startedAtMs > command.endedAtMs ->
+            IllegalArgumentException("session start must not be after end")
+        command.endedAtMs > nowMs() + FUTURE_SKEW_TOLERANCE_MS ->
+            IllegalArgumentException("session end is unreasonably in the future")
+        else -> null
+    }
+
+    private fun validateAccessibility(command: AccessibilitySessionCommand): Throwable? = when {
+        command.title.isBlank() ->
+            IllegalArgumentException("accessibility session requires a non-blank title")
         command.startedAtMs > command.endedAtMs ->
             IllegalArgumentException("session start must not be after end")
         command.endedAtMs > nowMs() + FUTURE_SKEW_TOLERANCE_MS ->

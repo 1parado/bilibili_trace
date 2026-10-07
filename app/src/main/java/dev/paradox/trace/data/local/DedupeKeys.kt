@@ -35,4 +35,22 @@ object DedupeKeys {
         startedAtMs.toString(),
         endedAtMs.toString(),
     ).joinToString(separator = "|")
+
+    /**
+     * Accessibility-observed content sessions. Keyed by package, title, and
+     * exact interval so re-delivered observations stay idempotent.
+     */
+    fun accessibilitySession(
+        packageName: String,
+        title: String,
+        startedAtMs: Long,
+        endedAtMs: Long,
+    ): String = listOf(
+        "ACCESSIBILITY",
+        "SESSION_ENDED",
+        packageName,
+        title,
+        startedAtMs.toString(),
+        endedAtMs.toString(),
+    ).joinToString(separator = "|")
 }

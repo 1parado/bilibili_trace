@@ -10,6 +10,7 @@ import dev.paradox.trace.data.local.entity.BehaviorEventEntity
 import dev.paradox.trace.data.local.entity.ContentItemEntity
 import dev.paradox.trace.domain.model.EventSource
 import dev.paradox.trace.domain.model.SessionCompleteness
+import dev.paradox.trace.domain.repository.AccessibilitySessionCommand
 import dev.paradox.trace.domain.repository.ManualSessionCommand
 import dev.paradox.trace.domain.repository.UsageSessionCommand
 import java.util.concurrent.atomic.AtomicLong
@@ -238,6 +239,71 @@ class RoomSessionRepositoryTest {
         assertTrue(base != DedupeKeys.usageSession("tv.danmaku.bili", 100L, 201L))
         assertTrue(base != DedupeKeys.usageSession("com.bilibili.app.in", 100L, 200L))
         assertEquals(base, DedupeKeys.usageSession("tv.danmaku.bili", 100L, 200L))
+    }
+
+    private fun a11yCommand(
+        title: String = "【实测】自动识别的视频标题",
+        startMs: Long = now.get() - 1_800_000L,
+        endMs: Long = now.get() - 900_000L,
+    ) = AccessibilitySessionCommand(
+        packageName = "tv.danmaku.bili",
+        title = title,
+        startedAtMs = startMs,
+        endedAtMs = endMs,
+    )
+
+    @Test
+    fun `addAccessibilitySession stores title content with accessibility provenance`() = runTest {
+        val (repo, fakes) = repository()
+
+        val result = repo.addAccessibilitySession(a11yCommand())
+
+        assertTrue(result.isSuccess)
+        val session = result.getOrThrow()
+        assertEquals(EventSource.ACCESSIBILITY, session.source)
+        assertEquals("【实测】自动识别的视频标题", session.content?.title)
+        assertEquals(null, session.content?.platformContentId)
+        assertEquals(1, fakes.sessionDao.rows.size)
+        assertEquals(1, fakes.contentDao.rows.size)
+        assertEquals(false, fakes.contentDao.rows.values.single().userVerified)
+        assertEquals(EventSource.ACCESSIBILITY.name, fakes.contentDao.rows.values.single().metadataSource)
+    }
+
+    @Test
+    fun `same title across accessibility sessions shares one content identity`() = runTest {
+        val (repo, fakes) = repository()
+
+        val first = repo.addAccessibilitySession(a11yCommand(startMs = 100L, endMs = 200L))
+        val second = repo.addAccessibilitySession(a11yCommand(startMs = 500L, endMs = 600L))
+
+        assertTrue(first.isSuccess && second.isSuccess)
+        assertEquals(first.getOrThrow().content, second.getOrThrow().content)
+        assertEquals(2, fakes.sessionDao.rows.size)
+        assertEquals(1, fakes.contentDao.rows.size)
+    }
+
+    @Test
+    fun `accessibility re-submission is idempotent`() = runTest {
+        val (repo, fakes) = repository()
+
+        val first = repo.addAccessibilitySession(a11yCommand())
+        val second = repo.addAccessibilitySession(a11yCommand())
+
+        assertTrue(first.isSuccess && second.isSuccess)
+        assertEquals(first.getOrThrow().id, second.getOrThrow().id)
+        assertEquals(1, fakes.sessionDao.rows.size)
+        assertEquals(1, fakes.eventDao.rows.size)
+    }
+
+    @Test
+    fun `blank title accessibility session is rejected`() = runTest {
+        val (repo, fakes) = repository()
+
+        val result = repo.addAccessibilitySession(a11yCommand(title = "   "))
+
+        assertTrue(result.isFailure)
+        assertEquals(0, fakes.sessionDao.rows.size)
+        assertEquals(0, fakes.contentDao.rows.size)
     }
 }
 

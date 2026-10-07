@@ -26,6 +26,18 @@ data class UsageSessionCommand(
     val endedAtMs: Long,
 )
 
+/**
+ * Command for importing an accessibility-observed content session. Title is
+ * recognition output, not user input: it is stored as metadata with
+ * ACCESSIBILITY provenance and never treated as user-verified.
+ */
+data class AccessibilitySessionCommand(
+    val packageName: String,
+    val title: String,
+    val startedAtMs: Long,
+    val endedAtMs: Long,
+)
+
 /** Read/write gateway for content sessions. Sources never certify truth. */
 interface SessionRepository {
 
@@ -46,6 +58,12 @@ interface SessionRepository {
      * Returns the number of newly stored sessions.
      */
     suspend fun addUsageSessions(commands: List<UsageSessionCommand>): Int
+
+    /**
+     * Persists an accessibility-observed content session idempotently.
+     * Sessions with the same title share one content identity.
+     */
+    suspend fun addAccessibilitySession(command: AccessibilitySessionCommand): Result<ContentSession>
 
     suspend fun deleteSession(id: String)
 
