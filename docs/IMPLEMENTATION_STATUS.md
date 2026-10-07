@@ -32,6 +32,11 @@ This file tracks verified repository state. Update it only after inspecting code
       identity with ACCESSIBILITY provenance and userVerified=false; no automation, no screen
       text storage; on-device extraction accuracy on real app versions still needs verification
 - [x] Manual recording entry removed by product decision; share-intent quick save retained
+- [x] Creator statistics: share imports fetch the creator anonymously from the Bilibili view API;
+      observed (accessibility) title sessions merge into that enriched content identity deterministically
+      (write-side title match + read-side creator borrowing for legacy rows); today screen shows a
+      creator ranking and session rows display the creator. No search-API guessing: creator attribution
+      only flows from exact content matches, never from fuzzy network lookups
 - [ ] Weekly report based on traceable metrics
 
 ## Current quality status
